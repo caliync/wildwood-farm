@@ -107,7 +107,7 @@ body { margin: 0; background: #9fd4ec; color: var(--ink); font-family: var(--fon
 .banner { position: absolute; left: 50%; top: 76px; transform: translateX(-50%); text-align: center; pointer-events: none; color: #fff; text-shadow: 0 3px 0 rgba(58, 42, 26, .45), 0 0 24px rgba(0, 0, 0, .25); opacity: 0; transition: opacity .6s ease; }
 .banner.show { opacity: 1; }
 .banner b { display: block; font: 700 40px/1 var(--font-display); }
-.banner span { font: 700 14px/1.4 var(--font-body); letter-spacing: .12em; text-transform: uppercase; }
+.banner span { font: 700 15px/1.4 var(--font-body); letter-spacing: .02em; }
 .toasts { position: absolute; left: 0; right: 0; bottom: 104px; display: flex; flex-direction: column; align-items: center; gap: 6px; pointer-events: none; padding-left: var(--gutter-l); padding-right: var(--gutter-r); }
 .toast { background: var(--cream); color: var(--ink); font: 600 16px/1.3 var(--font-display); padding: 8px 16px; border-radius: 14px; box-shadow: 0 4px 0 #c9b48a, 0 10px 24px rgba(0, 0, 0, .18); max-width: 100%; text-align: center; animation: toast 3.4s ease forwards; }
 @keyframes toast { 0% { opacity: 0; transform: translateY(10px) scale(.95); } 8%, 82% { opacity: 1; transform: none; } 100% { opacity: 0; transform: translateY(-6px); } }
@@ -145,7 +145,7 @@ body { margin: 0; background: #9fd4ec; color: var(--ink); font-family: var(--fon
 .page b { font: 700 21px/1.1 var(--font-display); }
 .page small { font-size: 12.5px; color: var(--ink-soft); line-height: 1.4; }
 .page small strong { color: var(--ink); }
-.tag { align-self: flex-start; font: 800 10.5px/1 var(--font-body); text-transform: uppercase; letter-spacing: .08em; padding: 4px 8px; border-radius: 999px; background: rgba(58, 42, 26, .1); }
+.tag { align-self: flex-start; font: 700 12px/1 var(--font-body); padding: 4px 8px; border-radius: 999px; background: rgba(58, 42, 26, .1); }
 .page.friend .tag { background: var(--moss); color: #fff; }
 .page.gold .tag { background: #b8841c; color: #fff; }
 .wallet { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
@@ -362,6 +362,26 @@ kbd.k { font: 800 12px/1 var(--font-body); background: var(--ink); color: var(--
 .hcard ul { margin: 0; padding-left: 18px; font-size: 13.5px; line-height: 1.4; color: var(--ink-soft); }
 .hcard .btn { margin-top: auto; }
 .wcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+#fishTries { display: block; margin-top: 2px; font-weight: 700; color: #ffd36b; }
+.fishbar { position: absolute; left: 50%; bottom: 128px; transform: translateX(-50%); width: min(380px, calc(100% - 32px)); padding: 12px 14px 10px; border-radius: 18px; background: #23384a; color: #eaf4fb; box-shadow: 0 4px 0 #142330, 0 14px 30px rgba(0, 0, 0, .3); text-align: center; pointer-events: auto; animation: pop .22s var(--ease-pop); z-index: 6; }
+.fishbar b { font: 700 17px/1.2 var(--font-display); display: block; margin-bottom: 8px; }
+.fishbar small { display: block; margin-top: 8px; font: 600 12.5px/1.35 var(--font-body); color: #b9d3e4; }
+.fishbar kbd { font: 800 11px/1 var(--font-body); background: #eaf4fb; color: #23384a; border-radius: 5px; padding: 2px 5px; }
+.ftrack { position: relative; display: block; width: 100%; height: 26px; border: 0; padding: 0; border-radius: 13px; cursor: pointer; background: linear-gradient(#3d6f8f, #2e5a76); box-shadow: inset 0 2px 5px rgba(0, 0, 0, .35); }
+.fzone { position: absolute; top: 3px; bottom: 3px; border-radius: 10px; background: linear-gradient(#ffe08a, #f2b84b); box-shadow: 0 0 12px rgba(255, 210, 110, .7); }
+.fneedle { position: absolute; top: -4px; bottom: -4px; width: 6px; margin-left: -3px; border-radius: 3px; background: #fff; box-shadow: 0 0 0 2px #e0402a; }
+.fishbar.miss { animation: fmiss .32s ease; } @keyframes fmiss { 25% { transform: translateX(calc(-50% - 8px)); } 50% { transform: translateX(calc(-50% + 8px)); } 75% { transform: translateX(calc(-50% - 4px)); } }
+.dawncard { position: absolute; left: 50%; top: 92px; transform: translateX(-50%); width: min(360px, calc(100% - 32px)); padding: 18px 20px; border-radius: 20px; background: linear-gradient(170deg, #ffe7c2, #ffd2b0 70%, #f8c3c8); color: #3a2a1a; box-shadow: 0 5px 0 #d9a77a, 0 18px 40px rgba(0, 0, 0, .28); pointer-events: auto; animation: cardin .4s var(--ease-pop); z-index: 7; }
+.dawncard h3 { margin: 0 0 10px; font: 700 22px/1.2 var(--font-display); }
+.dawncard ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.dawncard li { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 12px; background: rgba(255, 255, 255, .55); font: 600 15px/1.25 var(--font-body); }
+.dawncard li b { font: 800 16px/1 var(--font-body); }
+.dawncard li.bad b { color: #b42318; }
+.dawncard .bonus { margin: 12px 0 4px; font: 600 15.5px/1.3 var(--font-body); }
+.dawncard .bonus b { font-size: 18px; }
+.dawncard .tip { margin: 2px 0 0; font: 500 14px/1.4 var(--font-body); color: #6b4a2b; }
+.dawncard .btn { margin-top: 12px; width: 100%; }
+@media (prefers-reduced-motion: reduce) { .fishbar, .dawncard { animation: none; } }
 .defh { margin: 18px 0 2px; font: 700 20px/1.2 var(--font-display); }
 .pettag { pointer-events: auto; transform: translate(-50%, -100%); display: block; border: 0; border-radius: 999px; padding: 4px 11px; background: #fff7e6; color: #3a2a1a; font: 800 13px/1.2 var(--font-body); box-shadow: 0 2px 0 rgba(58, 42, 26, .35), 0 3px 8px rgba(0, 0, 0, .2); cursor: pointer; white-space: nowrap; }
 .pettag:hover { background: #ffe1a6; }
@@ -424,6 +444,8 @@ kbd.k { font: 800 12px/1 var(--font-body); background: var(--ink); color: var(--
   </div>
   <div class="anchor" id="stamA" hidden><div class="stam"><i id="stamFill"></i></div></div>
   <div class="joy" id="joy" hidden><i id="joyKnob"></i></div>
+  <div class="fishbar" id="fishBar" hidden><b id="fishName">Something is biting!</b><button class="ftrack" id="ftrack" aria-label="Reel in"><i class="fzone" id="fzone"></i><i class="fneedle" id="fneedle"></i></button><small>Press <kbd>E</kbd> or tap the bar when the hook is in the gold zone. <span id="fishTries"></span></small></div>
+  <div class="dawncard" id="dawnCard" hidden></div>
   <div class="bossbar" id="bossBar" hidden><b id="bossName"></b><div class="bbar"><i id="bossFill"></i></div></div>
   <div class="banner" id="banner"><span id="bannerSub">You are in</span><b id="bannerTxt">Farm</b></div>
   <div class="toasts" id="toasts"></div>
@@ -500,6 +522,8 @@ kbd.k { font: 800 12px/1 var(--font-body); background: var(--ink); color: var(--
         <li><span>🏡</span><span><b>Spend your gold:</b> upgrade your home from a tent to a cabin, farmhouse and manor for more hearts, more crop plots and faster gifts. Visit the <b>Blacksmith</b> ⚒️ by the well to forge stronger knives and slingshots. Forging needs coins plus <b>enemy drops</b>: 🐺 fur from wolves, 🦴 tusks from boars, 🦡 claws from Burrow bosses, and rare 🦷 fangs, 👑 royal tusks and 🔮 Earth cores from bosses. The <b>Trader</b> swaps spare food for fur, tusks and claws.</span></li>
         <li><span>🌟</span><span><b>Rare animals</b> glow with a coloured ring: 🔷 rare, 🟣 epic, 🌟 legendary. They give more XP, but taming one can wake a <b>Burrow boss</b> that digs out of the ground to take it back. Beat it for burrow claws and, from the King, an Earth core.</span></li>
         <li><span>🐺</span><span><b>Night raids:</b> every night wolf packs march on your farm in waves. They break in through the gates, trample your crops, scare your barn animals and attack you. When one crouches, it's about to pounce. Fight back with your knife (<kbd class="k">F</kbd>) or slingshot (<kbd class="k">G</kbd>).</span></li>
+        <li><span>🎣</span><span><b>Fishing:</b> buy a rod at the Shop, stand by the creek and press <kbd class="k">E</kbd> to cast. When the bobber dips, stop the hook inside the gold zone. Different fish bite in the morning, at night and in the rain. Sell them at the Merchant.</span></li>
+        <li><span>🌅</span><span><b>Morning report:</b> after a night raid you get a summary of what happened and a coin bonus for every raider you beat. Lose nothing for an extra perfect-defence bonus.</span></li>
         <li><span>🛡️</span><span><b>Farm defences:</b> open your home (🏡) to build gates the raiders must break first, watchtowers that shoot them, and spike traps at the gates.</span></li>
       </ul>
     </div>
@@ -598,6 +622,7 @@ const ITEMS = {
   feather: { name: 'Feather', em: '🪶' }, sparkle: { name: 'Sparkle stone', em: '💎' },
   pinecone: { name: 'Pine cone', em: '🌲' }, dew: { name: 'Spirit dew', em: '💧' },
   pumpkin: { name: 'Pumpkin', em: '🎃' }, fur: { name: 'Wolf fur', em: '🐺' }, tusk: { name: 'Boar tusk', em: '🦴' }, claw: { name: 'Burrow claw', em: '🦡' }, fang: { name: 'Alpha fang', em: '🦷' }, crown: { name: 'Royal tusk', em: '👑' }, core: { name: 'Earth core', em: '🔮' },
+  minnow: { name: 'Minnow', em: '🐟' }, sunfish: { name: 'Sunfish', em: '🐠' }, crawdad: { name: 'Crawdad', em: '🦞' }, puffer: { name: 'Pufferfish', em: '🐡' }, koi: { name: 'Golden koi', em: '🎏' },
   cseed: { name: 'Carrot seeds', em: '🌱' }, bseed: { name: 'Berry seeds', em: '🌱' }, mseed: { name: 'Mushroom spores', em: '🌱' }, pseed: { name: 'Pumpkin seeds', em: '🌱' },
 };
 const FOODS = ['carrot', 'berry', 'acorn', 'mushroom', 'bug'];
@@ -616,7 +641,15 @@ const CROPS = {
 };
 const FOODVAL = { carrot: 2, berry: 3, acorn: 2, mushroom: 8, bug: 2, pumpkin: 24 };
 const BAG_UP = [80, 160, 280, 450], BAG_BASE = 100;
-const SELL = { clover: 6, pinecone: 7, lily: 10, moss: 10, feather: 15, sparkle: 45, dew: 40 };
+// fish caught at the creek; `zone` is the share of the reel bar that lands the catch
+const FISH = {
+  minnow: { name: 'Minnow', em: '🐟', v: 5, zone: 0.3, spd: 1.5, w: () => 50, note: 'Bites any time of day' },
+  sunfish: { name: 'Sunfish', em: '🐠', v: 11, zone: 0.22, spd: 2, w: () => ['dawn', 'day'].includes(phase()) ? 30 : 0, note: 'Bites in the morning and daytime' },
+  crawdad: { name: 'Crawdad', em: '🦞', v: 14, zone: 0.2, spd: 2.2, w: () => ['dusk', 'night'].includes(phase()) ? 28 : 0, note: 'Comes out at dusk and night' },
+  puffer: { name: 'Pufferfish', em: '🐡', v: 18, zone: 0.16, spd: 2.5, w: () => S.rain > 0 ? 30 : 0, note: 'Only bites in the rain' },
+  koi: { name: 'Golden koi', em: '🎏', v: 45, zone: 0.1, spd: 3, w: () => 4 + luckK() * 6, note: 'Very rare, any time' },
+};
+const SELL = { minnow: 5, sunfish: 11, crawdad: 14, puffer: 18, koi: 45, clover: 6, pinecone: 7, lily: 10, moss: 10, feather: 15, sparkle: 45, dew: 40 };
 const DEF = {
   gate: { em: '🚪', label: 'Farm gates', names: ['No gates', 'Wooden gates', 'Iron gates', 'Stone gates'], hp: [0, 12, 25, 45], cost: [0, 60, 160, 320], mats: [null, { fur: 3 }, { tusk: 4 }, { claw: 2, fur: 4 }], what: l => `Raiders must break the gates before they get in · ${DEF.gate.hp[l]} HP each night` },
   tower: { em: '🏹', label: 'Watchtowers', names: ['No watchtower', 'Watchtower', 'Archer tower', 'Twin towers'], dmg: [0, 1, 1.5, 1.5], cd: [0, 2.6, 1.8, 1.6], cost: [0, 120, 260, 480], mats: [null, { fur: 2 }, { tusk: 3 }, { claw: 2, fang: 1 }], what: l => l ? `Shoots at enemies near the farm · ${DEF.tower.dmg[l]} damage every ${DEF.tower.cd[l]}s${l >= 3 ? ' · two towers' : ''}` : 'Shoots at enemies near the farm' },
@@ -640,6 +673,7 @@ const SHOP = [
   { id: 'bseed', kind: 'seed', name: 'Berry seeds', em: '🍒', desc: '55s · harvest 4 berries. Fawns love them.', cost: 5 },
   { id: 'mseed', kind: 'seed', name: 'Mushroom spores', em: '🍄', desc: '70s · harvest 2 mushrooms. Owls love them.', cost: 6 },
   { id: 'pseed', kind: 'seed', name: 'Pumpkin seeds', em: '🎃', desc: '90s · harvest 1 big pumpkin. Just for show (and XP).', cost: 10 },
+  { id: 'rod', kind: 'rod', name: 'Fishing rod', em: '🎣', desc: 'Fish at the creek and sell your catch to the Merchant. You only need one.', cost: 25 },
   { id: 'bug', kind: 'item', name: 'Bug snack', em: '🐛', desc: 'The frog\'s favourite. Frogs come out in the rain.', cost: 4 },
 ];
 const PEN_SP = ['bunny', 'squirrel', 'frog', 'fawn', 'owl', 'spirit'];
@@ -670,6 +704,7 @@ const QUEST_POOL = [
   { t: 'pet', n: 4, txt: 'Pet or feed your barn animals 4 times', r: [15, 25], need: () => S.friends.length > 0 },
   { t: 'forage', n: 3, txt: 'Forage 3 acorns or mushrooms', r: [15, 20] },
   { t: 'settle', n: 1, txt: 'Settle a new friend into your barn', r: [25, 30] },
+  { t: 'fish', n: 2, txt: 'Catch 2 fish at the creek', r: [20, 25], need: () => !!S.rod },
 ];
 const CYCLE = 240;
 
@@ -1061,6 +1096,18 @@ for (let i = 0; i < 16; i++) {
 }
 
 // ================= CAMP =================
+// warm halo + light pool for lanterns; faded in by night in updateGlows()
+const glowTex = (() => { const cv = document.createElement('canvas'); cv.width = cv.height = 64; const x = cv.getContext('2d'); const gr = x.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,214,150,1)'); gr.addColorStop(0.35, 'rgba(255,180,90,.45)'); gr.addColorStop(1, 'rgba(255,160,60,0)'); x.fillStyle = gr; x.fillRect(0, 0, 64, 64); return new T.CanvasTexture(cv); })();
+const glows = [];
+function glowAt(x, y, z, size = 1) {
+  const halo = new T.Sprite(new T.SpriteMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: 0 })); halo.scale.setScalar(2.4 * size); halo.position.set(x, y, z); scene.add(halo);
+  const pool = new T.Mesh(new T.CircleGeometry(4 * size, 20), new T.MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: 0 })); pool.rotation.x = -Math.PI / 2; pool.position.set(x, height(x, z) + 0.08, z); scene.add(pool);
+  glows.push({ halo, pool, seed: Math.random() * 10 });
+}
+function updateGlows() {
+  const nk = nightK(), t = clock;
+  glows.forEach(g => { const fl = 0.92 + Math.sin(t * 7 + g.seed) * 0.05 + Math.sin(t * 13 + g.seed) * 0.03; g.halo.material.opacity = nk * 0.85 * fl; g.pool.material.opacity = nk * 0.4 * fl; g.halo.visible = g.pool.visible = nk > 0.02; });
+}
 function buildCamp() {
   const g = staticGroup;
   // open barn: back + side walls, roof, 6 pens inside, open front toward the yard
@@ -1081,7 +1128,7 @@ function buildCamp() {
   lineObs(BX0, BZ0, BX0, BZ1); lineObs(BX0, BZ0, BX1, BZ0); lineObs(BX0, BZ1, BX1, BZ1);
   lineObs(-62.6, -8, -49.4, -8); lineObs(-62.6, -2, -49.4, -2); lineObs(-49.4, BZ0, -49.4, -8); lineObs(-49.4, -2, -49.4, BZ1);
   // hanging lantern and hay for napping
-  mesh(new T.CylinderGeometry(0.02, 0.02, 1.0, 4), 0x3a2a1a, -55, 4.5, -5, g, false); mesh(new T.SphereGeometry(0.26, 10, 8), basic(0xffd08a), -55, 3.9, -5, g, false);
+  mesh(new T.CylinderGeometry(0.02, 0.02, 1.0, 4), 0x3a2a1a, -55, 4.5, -5, g, false); mesh(new T.SphereGeometry(0.26, 10, 8), basic(0xffd08a), -55, 3.9, -5, g, false); glowAt(-55, 3.9, -5, 0.9);
   const hayG = flat(new T.CylinderGeometry(0.75, 0.75, 1.3, 10));
   [[-62, -6.3, 0.75], [-62, -3.7, 0.75], [-62, -5, 2.1]].forEach(([x, z, y], i) => { const h = mesh(hayG, 0xe8c25a, x, y, z, g); h.rotation.set(0, i * 0.4, Math.PI / 2); h.rotation.order = 'YXZ'; h.rotation.set(Math.PI / 2, 0, 0); });
   // well
@@ -1094,7 +1141,7 @@ function buildCamp() {
   obstacles.push({ x: WELL.x, z: WELL.z, r: 1.5 });
   // lamp post by the barn
   mesh(new T.CylinderGeometry(0.09, 0.11, 3.4, 6), 0x3a2a1a, LAMP.x, 1.7, LAMP.z, g);
-  mesh(new T.SphereGeometry(0.3, 10, 8), basic(0xffd08a), LAMP.x, 3.55, LAMP.z, g, false);
+  mesh(new T.SphereGeometry(0.3, 10, 8), basic(0xffd08a), LAMP.x, 3.55, LAMP.z, g, false); glowAt(LAMP.x, 3.55, LAMP.z);
   mesh(new T.ConeGeometry(0.42, 0.3, 6), 0x3a2a1a, LAMP.x, 3.92, LAMP.z, g);
   obstacles.push({ x: LAMP.x, z: LAMP.z, r: 0.4 });
   // crop field
@@ -1145,7 +1192,7 @@ function buildCamp() {
     obstacles.push({ x: sg.position.x, z: sg.position.z - 1.3, r: 0.35 }, { x: sg.position.x, z: sg.position.z + 1.3, r: 0.35 });
   }
   [[MARKET.x - 5.3, MARKET.z - 11.8], [MARKET.x - 5.3, MARKET.z + 11.8]].forEach(([lx, lz]) => {
-    mesh(new T.CylinderGeometry(0.08, 0.1, 3, 6), 0x3a2a1a, lx, 1.5, lz, g); mesh(new T.SphereGeometry(0.26, 10, 8), basic(0xffd08a), lx, 3.15, lz, g, false); mesh(new T.ConeGeometry(0.36, 0.26, 6), 0x3a2a1a, lx, 3.48, lz, g);
+    mesh(new T.CylinderGeometry(0.08, 0.1, 3, 6), 0x3a2a1a, lx, 1.5, lz, g); mesh(new T.SphereGeometry(0.26, 10, 8), basic(0xffd08a), lx, 3.15, lz, g, false); glowAt(lx, 3.15, lz); mesh(new T.ConeGeometry(0.36, 0.26, 6), 0x3a2a1a, lx, 3.48, lz, g);
     obstacles.push({ x: lx, z: lz, r: 0.35 });
   });
   // stumps for owls
@@ -1434,7 +1481,7 @@ function emojiTex(k) {
 const handKey = () => S.hot[S.hand] || null;
 const heldFood = () => FOODS.includes(handKey()) && (S.inv[handKey()] || 0) > 0 ? handKey() : null;
 function syncHand() {
-  const k = handKey(); knifeM.visible = k === 'knife'; slingHM.visible = k === 'sling';
+  const k = fishing ? null : handKey(); knifeM.visible = k === 'knife'; slingHM.visible = k === 'sling';
   handSpr.visible = !!k && !TOOLS[k] && (S.inv[k] || 0) > 0; if (handSpr.visible && handSpr.material.map !== emojiTex(k)) { handSpr.material.map = emojiTex(k); handSpr.material.needsUpdate = true; }
 }
 function holdSlot(i) {
@@ -1629,15 +1676,17 @@ function renderShop() {
   const list = $('shopList'); list.innerHTML = '';
   SHOP.forEach(it => {
     const row = document.createElement('div'); row.className = 'shop-row';
-    const have = ` · you have ${S.inv[it.id] || 0}`;
+    const have = it.kind === 'rod' ? '' : ` · you have ${S.inv[it.id] || 0}`;
     row.innerHTML = `<div class="em">${it.em}</div><div class="info"><b>${it.name}</b><small>${it.desc}${have}</small></div>`;
     const btns = document.createElement('div'); btns.className = 'btns';
+    if (it.kind === 'rod' && S.rod) { const b = document.createElement('button'); b.className = 'btn'; b.disabled = true; b.textContent = 'Owned ✓'; btns.appendChild(b); row.appendChild(btns); list.appendChild(row); return; }
     (it.kind === 'seed' ? [1, 5] : [1]).forEach(n => {
       const cost = it.cost * n, afford = S.coins >= cost;
       const b = document.createElement('button'); b.className = 'btn' + (afford ? ' primary' : ''); b.id = `buy-${it.id}-${n}`;
       b.textContent = `${n > 1 ? '×' + n + ' · ' : ''}🪙${cost}`;
       b.onclick = () => {
         if (S.coins < cost) { toast(`You need 🪙${cost}. Sell animal drops at the merchant.`); return; }
+        if (it.kind === 'rod') { S.coins -= cost; S.rod = 1; SFX.play('level'); toast('🎣 You bought a fishing rod! Stand by the creek and press E to cast.'); renderPouch(); renderShop(); save(); return; }
         if (bagRoom() < n) { bagFull(); return; }
         S.coins -= cost;
         add(it.id, n); toast(`+${n} ${it.name}`);
@@ -1668,9 +1717,9 @@ function renderSell() {
   });
 }
 let bagTab = 'all', bagSel = null;
-const CAT = k => TOOLS[k] ? 'tools' : SEED2CROP[k] ? 'seeds' : MAT[k] ? 'mats' : SELL[k] ? 'drops' : 'food';
+const CAT = k => TOOLS[k] ? 'tools' : FISH[k] ? 'fish' : SEED2CROP[k] ? 'seeds' : MAT[k] ? 'mats' : SELL[k] ? 'drops' : 'food';
 const CATNAME = { tools: 'Tool', seeds: 'Seed', drops: 'Animal gift', food: 'Food', mats: 'Forge material' };
-const BAGTABS = [['all', 'All'], ['tools', '🔪 Tools'], ['food', '🥕 Food'], ['seeds', '🌱 Seeds'], ['drops', '🍀 Gifts'], ['mats', '⚒️ Materials']];
+const BAGTABS = [['all', 'All'], ['tools', '🔪 Tools'], ['food', '🥕 Food'], ['seeds', '🌱 Seeds'], ['drops', '🍀 Gifts'], ['fish', '🐟 Fish'], ['mats', '⚒️ Materials']];
 function itemDesc(k) {
   if (TOOLS[k]) return TOOLS[k].desc;
   const c = SEED2CROP[k]; if (c) { const cr = CROPS[c]; return `Plant it in your field. Grows in ${cr.t}s and gives ${cr.n} × ${cr.em}. ${cr.note}.`; }
@@ -1838,6 +1887,7 @@ function forge(k) {
 }
 const openHome = () => { renderHome(); $('homeWrap').hidden = false; };
 const openSmith = () => { renderSmith(); $('smithWrap').hidden = false; };
+$('ftrack').onclick = e => { e.stopPropagation(); reelPress(); };
 $('closeHome').onclick = () => { $('homeWrap').hidden = true; canvas.focus(); };
 $('closeSmith').onclick = () => { $('smithWrap').hidden = true; canvas.focus(); };
 syncWeapons();
@@ -2252,12 +2302,13 @@ function sling() {
 }
 function hitWolf(w, dmg, fx, fz, force, fx2) {
   SFX.play(w.hp - dmg <= 0 ? 'ko' : 'hit');
-  w.hp -= dmg; const kf = w.dig ? 0.18 : w.alpha ? 0.35 : 1; w.kx = fx * force * kf; w.kz = fz * force * kf;
+  w.hp -= dmg; w.punch = 1; const kf = w.dig ? 0.18 : w.alpha ? 0.35 : 1; w.kx = fx * force * kf; w.kz = fz * force * kf;
   floatText(w.x, w.y + 2.2, w.z, fx2);
   if (w.hp <= 0 && w.dig) { const D = DIG[w.dig]; w.state = 'ko'; w.t = 0; const nc = add('claw', D.claws), nk = D.core ? add('core', 1) : 0; floatText(w.x, w.y + 3.8, w.z, `+${nc} 🦡${nk ? ' +1 🔮' : ''}`, 250); gainXp(D.xp, w.x, w.z); S.legend.burrow = Math.max(S.legend.burrow || 0, w.dig); showBanner(D.name, 'You defeated the'); toast(`The ${D.name} is beaten! You got ${nc} burrow claw${nc > 1 ? 's' : ''}${nk ? ' and an Earth core' : ''} for the forge.`); qev('ko'); SFX.play('level'); save(); return; }
   if (w.hp <= 0 && w.alpha && w.boar) { w.state = 'ko'; w.t = 0; const nt = add('tusk', 3), nk = add('crown', 1); floatText(w.x, w.y + 3.8, w.z, `+${nk} 👑 +${nt} 🦴`, 250); gainXp(150, w.x, w.z); S.legend.king = true; showBanner('Boar King', 'You defeated the'); toast('The Boar King is dazed! You got a Royal tusk and 3 boar tusks for the forge.'); qev('ko'); save(); return; }
   if (w.hp <= 0 && w.alpha) { w.state = 'ko'; w.t = 0; const nf = add('fur', 3), ng = add('fang', 1); floatText(w.x, w.y + 3.5, w.z, `+${ng} 🦷 +${nf} 🐺`, 250); gainXp(150, w.x, w.z); S.legend.alpha = true; showBanner('Alpha Wolf', 'You defeated the'); toast('The Alpha Wolf yields! You got an Alpha fang and 3 wolf furs for the forge.'); qev('ko'); save(); return; }
   if (w.hp <= 0 && w.wx) { qev('ko'); w.state = 'ko'; w.t = 0; const E = WXE[w.wx], got = E.drop.map(([it, n]) => [it, add(it, n + (Math.random() < luckK() * 0.5 ? 1 : 0))]).filter(([, n]) => n); if (got.length) floatText(w.x, w.y + 3, w.z, got.map(([it, n]) => `+${n} ${ITEMS[it].em}`).join(' '), 250); gainXp(w.boar ? XP.boar + 15 : XP.wolf + 20, w.x, w.z); toast(`You beat the ${E.name}!`); save(); return; }
+  if (w.hp <= 0 && w.raid) nightLog.beat++;
   if (w.hp <= 0) { qev('ko'); w.state = 'ko'; w.t = 0; const it = w.boar ? 'tusk' : 'fur', n = add(it, Math.random() < luckK() * 0.5 ? 2 : 1); if (n) floatText(w.x, w.y + 2.8, w.z, `+${n} ${ITEMS[it].em}`, 250); gainXp(w.boar ? XP.boar : XP.wolf, w.x, w.z); save(); }
   else { w.state = 'stun'; w.t = 0; }
 }
@@ -2275,10 +2326,24 @@ function updateDefences(dt) {
   GATE_PTS.forEach(G => { if (!G.tag) { G.tag = document.createElement('div'); G.tag.className = 'anchor'; G.tag.innerHTML = '<div class="wtag"><span>🚪</span><i class="ehp"><b></b></i></div>'; anchors.appendChild(G.tag); } const on = raiders > 0 && S.def.gate > 0; G.tag.hidden = !on; if (on) { G.tag.querySelector('.ehp b').style.width = Math.max(0, S.gateHp / DEF.gate.hp[S.def.gate] * 100) + '%'; place(G.tag, G.gx, 2.9, G.gz); } });
 }
 let raidToastAt = -99;
+// what happened during tonight's raid, shown as a report card at dawn
+const nightLog = { on: false, beat: 0, crops: 0, scared: 0, broke: false };
+function showDawnReport() {
+  const L = nightLog, perfect = !L.crops && !L.scared, bonus = L.beat * 5 + (perfect ? 20 : 0);
+  S.coins += bonus; renderPouch(); save();
+  const row = (em, txt, n, bad) => `<li class="${bad && n ? 'bad' : ''}"><span>${em}</span><span>${txt}</span><b>${n}</b></li>`;
+  $('dawnCard').innerHTML = `<h3>🌅 Night ${S.nights} survived</h3>
+    <ul>${row('🐺', 'Raiders fought off', L.beat)}${row('🥕', 'Crops trampled', L.crops, true)}${row('💔', 'Times your animals were scared', L.scared, true)}${S.def.gate ? row('🚪', L.broke ? 'Gates were broken' : 'Gates held', L.broke ? '✗' : '✓', L.broke) : ''}</ul>
+    <p class="bonus">${perfect ? 'Perfect defence! ' : ''}Dawn bonus: <b>🪙 ${bonus}</b></p>${perfect ? '' : '<p class="tip">Build gates, towers and spikes from your home menu to protect the farm.</p>'}
+    <button class="btn primary" id="dawnOk">Start the day</button>`;
+  $('dawnCard').hidden = false; $('dawnOk').onclick = () => { $('dawnCard').hidden = true; };
+  setTimeout(() => { $('dawnCard').hidden = true; }, 12000);
+  Object.assign(L, { on: false, beat: 0, crops: 0, scared: 0, broke: false });
+}
 const raidToast = m => { if (clock - raidToastAt > 5) { raidToastAt = clock; toast(m); } };
 function bashGate(w, G) {
   S.gateHp = Math.max(0, S.gateHp - (w.big > 1.2 ? 3 : 1)); SFX.play('hit'); floatText(G.gx, 2.4, G.gz, '💥'); shakeT = Math.max(shakeT, 0.12);
-  if (S.gateHp <= 0) { SFX.play('ko'); syncGates(); toast('💥 The raiders smashed through your gates!'); }
+  if (S.gateHp <= 0) { nightLog.broke = true; SFX.play('ko'); syncGates(); toast('💥 The raiders smashed through your gates!'); }
 }
 function raidTarget(w) {
   const opts = [];
@@ -2289,8 +2354,8 @@ function raidTarget(w) {
   return opts[Math.floor(Math.random() * Math.min(2, opts.length))];
 }
 function raidHit(w, tg) {
-  if (tg.crop != null && S.crops[tg.crop]) { const k = S.crops[tg.crop].k; S.crops[tg.crop] = null; buildCrop(tg.crop); dirtBurst(tg.x, tg.z, 8, 0.5); floatText(tg.x, 2, tg.z, '🐾💢'); raidToast(`🐺 A raider trampled your ${CROPS[k].name.toLowerCase()} crop! Fight it off or build defences.`); save(); }
-  if (tg.barn) { const pn = [...new Set(S.friends.map(f => f.pen))]; const pen = pn[Math.floor(Math.random() * pn.length)]; pets.filter(p => p.pen === pen).forEach(p => { p.f.care = Math.max(0, careOf(p.f) - 25); p.lonelyTold = false; floatText(p.x, 2, p.z, '💔'); }); raidToast('🐺 A raider is scaring the animals in your barn! 💔'); save(); }
+  if (tg.crop != null && S.crops[tg.crop]) { const k = S.crops[tg.crop].k; nightLog.crops++; S.crops[tg.crop] = null; buildCrop(tg.crop); dirtBurst(tg.x, tg.z, 8, 0.5); floatText(tg.x, 2, tg.z, '🐾💢'); raidToast(`🐺 A raider trampled your ${CROPS[k].name.toLowerCase()} crop! Fight it off or build defences.`); save(); }
+  if (tg.barn) { nightLog.scared++; const pn = [...new Set(S.friends.map(f => f.pen))]; const pen = pn[Math.floor(Math.random() * pn.length)]; pets.filter(p => p.pen === pen).forEach(p => { p.f.care = Math.max(0, careOf(p.f) - 25); p.lonelyTold = false; floatText(p.x, 2, p.z, '💔'); }); raidToast('🐺 A raider is scaring the animals in your barn! 💔'); save(); }
 }
 function spawnRaider() {
   const gi = Math.floor(Math.random() * GATE_PTS.length), G = GATE_PTS[gi];
@@ -2310,11 +2375,11 @@ function updateWolves(dt, time) {
   }
   if (ph === 'night' && alphaAt && clock > alphaAt) { alphaAt = 0; if (!wolves.some(w => w.alpha && !w.boar)) spawnWolf(false, false, true); }
   if (ph !== 'night') alphaAt = 0;
-  if (ph !== 'night') { howled = false; raidN = 0; }
+  if (ph !== 'night') { howled = false; raidN = 0; if (nightLog.on && started) showDawnReport(); }
   if (ph === 'night' && started && raidN > 0 && clock > raidAt && faintT <= 0) {
     raidN--; raidWave++; raidAt = clock + R(32, 46);
     const n = Math.min(2 + Math.floor(raidWave / 2) + (Math.random() < 0.4 ? 1 : 0), 9 - activeWolves().length);
-    for (let i = 0; i < n; i++) spawnRaider();
+    for (let i = 0; i < n; i++) spawnRaider(); nightLog.on = true;
     if (n > 0) { if (raidWave === 1) { showBanner('Night Raid', `Wave 1 of ${raidN + 1}`); toast('🐺 Wolves are coming for your farm! Defend your crops and animals.'); } else toast(`🐺 Raid wave ${raidWave}: ${n} wolves are heading for your farm!${raidN ? '' : ' Last wave tonight.'}`); SFX.play('howl'); }
   }
   if (ph === 'night' && nightK() > 0.8 && clock > nextWolf && wolves.filter(w => !w.alpha && !w.boar).length < 4) { nextWolf = clock + R(9, 15); spawnWolf(); }
@@ -2393,7 +2458,8 @@ function updateWolves(dt, time) {
     else P.g.rotation.z = 0;
     if (w.dig) w.scl = 1; else if (w.state === 'leave' && w.t > 2.5) w.scl -= dt * 1.5; else w.scl += (1 - w.scl) * Math.min(1, dt * 3);
     if (w.scl <= 0.03) { scene.remove(P.g); w.tag.remove(); return false; }
-    P.g.scale.setScalar(Math.max(0.01, w.scl) * w.big);
+    w.punch = Math.max(0, (w.punch || 0) - dt * 6);
+    P.g.scale.setScalar(Math.max(0.01, w.scl) * w.big * (1 + 0.22 * Math.sin(w.punch * Math.PI)));
     w.ph += dt * sp * 1.7;
     P.legs.forEach((l, i) => { l.rotation.x = sp > 0 ? Math.sin(w.ph + (i % 2 ? Math.PI : 0) + (i > 1 ? Math.PI / 2 : 0)) * 0.6 : l.rotation.x * 0.85; });
     const ko = w.state === 'ko';
@@ -2436,7 +2502,76 @@ const nearMerch = () => Math.hypot(player.x - MERCH.x, player.z - MERCH.z) < 4.6
 const nearHome = () => Math.hypot(player.x - HOME.x, player.z - HOME.z) < homeR(S.home) + 2.2;
 const nearSmith = () => Math.hypot(player.x - SMITH.x, player.z - SMITH.z) < 4.2;
 const nearStall = () => Math.hypot(player.x - STALL.x, player.z - STALL.z) < 4.6;
+// ---- fishing: cast, wait for a bite, then stop the hook inside the gold zone
+let fishing = null;
+const rodM = new T.Group(); arms[1].add(rodM); rodM.visible = false;
+mesh(new T.CylinderGeometry(0.025, 0.04, 2.4, 5).rotateX(Math.PI / 2).translate(0, 0, 1.1), 0x6b4a2b, 0, -0.74, 0.1, rodM);
+const lineGeo = new T.BufferGeometry().setAttribute('position', new T.Float32BufferAttribute(new Float32Array(6), 3));
+const fishLine = new T.Line(lineGeo, new T.LineBasicMaterial({ color: 0xf2f2f2 })); fishLine.frustumCulled = false; fishLine.visible = false; scene.add(fishLine);
+const bobber = new T.Group(); scene.add(bobber); bobber.visible = false;
+mesh(new T.SphereGeometry(0.16, 10, 8), 0xe0402a, 0, 0.06, 0, bobber); mesh(new T.SphereGeometry(0.12, 10, 8), 0xfff7e6, 0, 0.17, 0, bobber);
+const nearWater = () => creekDist(player.x, player.z) < 4.6;
+function waterSpot() {
+  let best = null, bd = 9;
+  for (let k = 0; k < 24; k++) { const a = k / 24 * 6.283, x = player.x + Math.sin(a) * 3.4, z = player.z + Math.cos(a) * 3.4, d = creekDist(x, z); if (d < bd) { bd = d; best = { x, z }; } }
+  return bd < 2.2 ? best : null;
+}
+function startFishing() {
+  const spot = waterSpot(); if (!spot) { toast('Get a little closer to the water to cast.'); return; }
+  player.yaw = Math.atan2(spot.x - player.x, spot.z - player.z);
+  fishing = { phase: 'wait', t: 0, bite: R(1.8, 4.5) * (S.rain > 0 || phase() === 'dawn' ? 0.7 : 1), x: spot.x, z: spot.z, tries: 2 };
+  bobber.position.set(spot.x, WATER_Y, spot.z); bobber.visible = true; fishLine.visible = true; rodM.visible = true; syncHand();
+  SFX.play('pop'); floatText(spot.x, 0.6, spot.z, '💦');
+}
+function pickFish() {
+  const opts = Object.entries(FISH).map(([k, f]) => [k, f.w()]).filter(([, w]) => w > 0), tot = opts.reduce((a, [, w]) => a + w, 0);
+  let r = Math.random() * tot; for (const [k, w] of opts) { r -= w; if (r <= 0) return k; } return 'minnow';
+}
+function endFishing(msg) {
+  if (!fishing) return; fishing = null; bobber.visible = false; fishLine.visible = false; rodM.visible = false; $('fishBar').hidden = true; syncHand();
+  if (msg) toast(msg);
+}
+function reelPress() {
+  if (!fishing) return;
+  if (fishing.phase === 'wait') { endFishing('You reeled in early. Wait for the bobber to dip!'); return; }
+  const f = fishing, inZone = Math.abs(f.pos - f.zc) < f.zw / 2;
+  if (inZone) {
+    const F = FISH[f.k], n = add(f.k, 1); if (!n) { endFishing(); return; }
+    S.fishLog = S.fishLog || {}; const first = !S.fishLog[f.k]; S.fishLog[f.k] = (S.fishLog[f.k] || 0) + 1;
+    SFX.play('ding'); floatText(f.x, 1.2, f.z, `+1 ${F.em}`); gainXp(5 + Math.round(F.v / 3), f.x, f.z); qev('fish');
+    if (first) showBanner(`${F.em} ${F.name}`, 'New catch:');
+    endFishing(`You caught a ${F.name.toLowerCase()}! ${F.em} Sell it to the Merchant for 🪙${F.v}.`); save();
+  } else {
+    f.tries--; SFX.play('hit'); $('fishBar').classList.remove('miss'); void $('fishBar').offsetWidth; $('fishBar').classList.add('miss');
+    if (f.tries <= 0) endFishing(`The ${FISH[f.k].name.toLowerCase()} got away. Try again!`);
+    else $('fishTries').textContent = '1 try left';
+  }
+}
+function updateFishing(dt, time) {
+  if (!fishing) return;
+  if (player.moving || carrying || session || faintT > 0) { endFishing(); return; }
+  const f = fishing; f.t += dt;
+  const tip = new T.Vector3(); rodM.children[0].getWorldPosition(tip); tip.addScaledVector(new T.Vector3(Math.sin(player.yaw), 0.4, Math.cos(player.yaw)), 1.1);
+  let by = WATER_Y + Math.sin(time * 3) * 0.03;
+  if (f.phase === 'wait' && f.t > f.bite) {
+    f.phase = 'reel'; f.t = 0; f.k = pickFish(); const F = FISH[f.k];
+    f.zw = F.zone; f.zc = R(f.zw / 2 + 0.05, 1 - f.zw / 2 - 0.05); f.pos = 0; f.dir = 1;
+    SFX.play('ding'); floatText(f.x, 1, f.z, '❗'); dirtBurst(f.x, f.z, 0, 0);
+    $('fishName').textContent = F.zone <= 0.16 ? 'Something big is biting!' : 'Something is biting!';
+    const zone = $('fzone'); zone.style.left = ((f.zc - f.zw / 2) * 100) + '%'; zone.style.width = (f.zw * 100) + '%';
+    $('fishTries').textContent = '2 tries left'; $('fishBar').hidden = false;
+  }
+  if (f.phase === 'reel') {
+    const F = FISH[f.k]; f.pos += f.dir * dt * F.spd * 0.55; if (f.pos > 1) { f.pos = 1; f.dir = -1; } if (f.pos < 0) { f.pos = 0; f.dir = 1; }
+    $('fneedle').style.left = (f.pos * 100) + '%'; by = WATER_Y - 0.12 + Math.sin(time * 18) * 0.06;
+    if (f.t > 7) endFishing(`The ${F.name.toLowerCase()} got away. Try again!`);
+  }
+  if (!fishing) return;
+  bobber.position.y = by;
+  const a = lineGeo.attributes.position.array; a[0] = tip.x; a[1] = tip.y; a[2] = tip.z; a[3] = f.x; a[4] = by + 0.2; a[5] = f.z; lineGeo.attributes.position.needsUpdate = true;
+}
 function contextAction() {
+  if (fishing) return { label: fishing.phase === 'reel' ? 'Reel in!' : 'Waiting for a bite…', sub: fishing.phase === 'reel' ? 'Stop the hook in the gold zone' : 'Press again to reel in early', fn: reelPress, at: [fishing.x, 1.4, fishing.z] };
   if (session) return { label: 'Steady', fn: steady };
   const top = [player.x, pg.position.y + 3.6, player.z];
   if (carrying) {
@@ -2452,6 +2587,7 @@ function contextAction() {
     const f = pt.f, h = hearts(f), d = SPECIES[pt.sp], hf = heldFood(), feed = hf === d.food && (S.inv[hf] || 0) > 0, cd = pt.petCd > clock, cu = cuddlesToday(f), c = Math.round(careOf(f));
     return { label: cu >= CUDDLES ? 'All cuddled 💗' : cd ? 'Content 💗' : feed ? `Feed ${ITEMS[hf].em}` : 'Pet', sub: `${pt.spirit ? 'Spirit ' : pt.golden ? 'Golden ' : ''}${d.name} · ${heartStr(h)} · ${careFace(c)} ${c}% · 🤗 ${cu}/${CUDDLES}${!cd && !feed && cu < CUDDLES && h < 5 ? ' · hold ' + ITEMS[d.food].em + ' to feed' : ''}`, fn: () => bondPet(pt, feed && !cd), at: [pt.x, 2.3, pt.z] };
   }
+  if (S.rod && !carrying && nearWater() && campDist(player.x, player.z) > CAMP.r) return { label: 'Fish 🎣', sub: 'Cast your line into the creek', fn: startFishing, at: [player.x, pg.position.y + 3.6, player.z] };
   const pi = nearestPlot();
   if (pi != null) {
     const c = S.crops[pi], at = [FIELD[pi][0], 2, FIELD[pi][1]];
@@ -2559,7 +2695,7 @@ addEventListener('keydown', e => {
   if (k === 'e' || k === 'enter') act('E');
   if (k === 'q' && carrying && !e.repeat) dropCarried();
   if (k === 'x' && !e.repeat) { S.hand = -1; renderPouch(); }
-  if (k === ' ') { if (session) steady(); }
+  if (k === ' ') { if (session) steady(); else if (fishing) reelPress(); }
   if (k === 'shift') sprintHeld = true;
   if (k === 'k') openSkills();
   if (k === 'c') setCrouch(!crouch);
@@ -2724,6 +2860,7 @@ function update(dt, time) {
   arms[0].rotation.z = 0.12 + (player.moving ? 0 : 0.03 + breath * 0.025); arms[1].rotation.z = -arms[0].rotation.z;
   if (carrying) { arms[0].rotation.x = -1.15 + sw * 0.06; arms[1].rotation.x = -1.15 - sw * 0.06; }
   if (slingT > 0) arms[0].rotation.x = -1.5;
+  if (fishing) { arms[1].rotation.x = -0.75 + (fishing.phase === 'reel' ? Math.sin(clock * 20) * 0.08 : 0); arms[1].rotation.y = 0; }
   if (swingT > 0) { const k = 1 - swingT / 0.3; arms[1].rotation.x = -0.5 - Math.sin(k * Math.PI) * 1.2; arms[1].rotation.y = 1 - k * 2; }
   knifeM.visible = swingT > 0 || nightK() > 0.5;
   if (slashT > 0) { slashT -= dt; const k = 1 - slashT / 0.22; slash.material.opacity = 0.85 * (1 - k); slashG.scale.setScalar(0.85 + k * 0.3); slashG.position.set(player.x, py + 1.2, player.z); slashG.rotation.y = player.yaw; if (slashT <= 0) slashG.visible = false; }
@@ -2803,7 +2940,7 @@ function update(dt, time) {
     else if (session.trust <= 0) endSession(false);
   }
 
-  updateWolves(dt, time); updateDefences(dt);
+  updateWolves(dt, time); updateDefences(dt); updateFishing(dt, time); updateGlows();
   updateCrops(dt, time);
 
   $('app').dataset.sheet = anySheet() ? '1' : '';
@@ -2994,7 +3131,7 @@ function hud(dt) {
   const sa = $('stamA'), showSt = started && stam < stamMax() - 0.5;
   sa.hidden = !showSt; if (showSt) { $('stamFill').style.width = (stam / stamMax() * 100).toFixed(1) + '%'; sa.firstChild.classList.toggle('low', stam < 25); place(sa, player.x, pg.position.y + 3.25, player.z); }
   const pa = $('promptA');
-  if (c.at && !session && started) { pa.hidden = false; const ky = c.key || 'E'; if ($('promptKey').textContent !== ky) $('promptKey').textContent = ky; if ($('promptTxt').textContent !== c.label) { $('promptTxt').textContent = c.label; } $('promptSub').textContent = c.sub || ''; place(pa, c.at[0], c.at[1], c.at[2]); } else pa.hidden = true;
+  if (c.at && !session && started && !(fishing && fishing.phase === 'reel')) { pa.hidden = false; const ky = c.key || 'E'; if ($('promptKey').textContent !== ky) $('promptKey').textContent = ky; if ($('promptTxt').textContent !== c.label) { $('promptTxt').textContent = c.label; } $('promptSub').textContent = c.sub || ''; place(pa, c.at[0], c.at[1], c.at[2]); } else pa.hidden = true;
   const ta = $('trustA');
   if (session) {
     ta.hidden = false; const a = session.a;

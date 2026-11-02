@@ -10,6 +10,8 @@ A cozy 3D browser game. Befriend forest animals, grow your farm, and survive the
 - **Grow** carrots, berries, mushrooms and pumpkins. Rain makes crops grow twice as fast.
 - **Defend** your farm from night-time wolf raids with gates, watchtowers and spike traps.
 - **Forge** stronger knives and slingshots at the Blacksmith from enemy drops.
+- **Fish** the creek with a rod from the Shop. Five fish bite at different times and weather, from minnows to the rare koi.
+- **Check the morning report** after a raid night to see what you fought off and collect a dawn bonus.
 
 ## Controls
 | Action | Keys |
