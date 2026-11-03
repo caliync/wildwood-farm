@@ -385,6 +385,15 @@ kbd.k { font: 800 12px/1 var(--font-body); background: var(--ink); color: var(--
 .defh { margin: 18px 0 2px; font: 700 20px/1.2 var(--font-display); }
 .pettag { pointer-events: auto; transform: translate(-50%, -100%); display: block; border: 0; border-radius: 999px; padding: 4px 11px; background: #fff7e6; color: #3a2a1a; font: 800 13px/1.2 var(--font-body); box-shadow: 0 2px 0 rgba(58, 42, 26, .35), 0 3px 8px rgba(0, 0, 0, .2); cursor: pointer; white-space: nowrap; }
 .pettag:hover { background: #ffe1a6; }
+.tagrow { display: flex; gap: 4px; align-items: center; transform: translate(-50%, -100%); }
+.tagrow .pettag { transform: none; }
+.pettag.walk { font-size: 12px; padding: 4px 9px; background: #e3f1dc; color: #2c4a22; }
+.pettag.walk:hover { background: #cfe8c2; }
+.ings { display: flex; flex-wrap: wrap; gap: 4px; margin: 3px 0 2px; }
+.ing { font: 700 12px/1 var(--font-body); padding: 3px 7px; border-radius: 999px; background: #e3f1dc; color: #2c4a22; }
+.ing.miss { background: #fbe3df; color: #8a2a1e; }
+.fedline { margin: 0 0 8px; font-weight: 700; color: #7a4a14; }
+.fedline:empty { display: none; }
 .pettag.done { opacity: .6; }
 .wcard { background: var(--cream-2); border-radius: 16px; padding: 14px; display: flex; flex-direction: column; gap: 8px; }
 .wcard .top { display: flex; gap: 12px; align-items: center; }
@@ -522,6 +531,8 @@ kbd.k { font: 800 12px/1 var(--font-body); background: var(--ink); color: var(--
         <li><span>🏡</span><span><b>Spend your gold:</b> upgrade your home from a tent to a cabin, farmhouse and manor for more hearts, more crop plots and faster gifts. Visit the <b>Blacksmith</b> ⚒️ by the well to forge stronger knives and slingshots. Forging needs coins plus <b>enemy drops</b>: 🐺 fur from wolves, 🦴 tusks from boars, 🦡 claws from Burrow bosses, and rare 🦷 fangs, 👑 royal tusks and 🔮 Earth cores from bosses. The <b>Trader</b> swaps spare food for fur, tusks and claws.</span></li>
         <li><span>🌟</span><span><b>Rare animals</b> glow with a coloured ring: 🔷 rare, 🟣 epic, 🌟 legendary. They give more XP, but taming one can wake a <b>Burrow boss</b> that digs out of the ground to take it back. Beat it for burrow claws and, from the King, an Earth core.</span></li>
         <li><span>🐺</span><span><b>Night raids:</b> every night wolf packs march on your farm in waves. They break in through the gates, trample your crops, scare your barn animals and attack you. When one crouches, it's about to pounce. Fight back with your knife (<kbd class="k">F</kbd>) or slingshot (<kbd class="k">G</kbd>).</span></li>
+        <li><span>🍲</span><span><b>Cooking:</b> the pot by the well turns crops and fish into meals. Eat them from your bag to heal hearts and refill stamina, or sell them for more than the ingredients.</span></li>
+        <li><span>🐾</span><span><b>Walking buddy:</b> tap "Walk with me" over a barn animal and it follows you around the map. Buddies sniff out treats and warn you when wolves are close.</span></li>
         <li><span>🎣</span><span><b>Fishing:</b> buy a rod at the Shop, stand by the creek and press <kbd class="k">E</kbd> to cast. When the bobber dips, stop the hook inside the gold zone. Different fish bite in the morning, at night and in the rain. Sell them at the Merchant.</span></li>
         <li><span>🌅</span><span><b>Morning report:</b> after a night raid you get a summary of what happened and a coin bonus for every raider you beat. Lose nothing for an extra perfect-defence bonus.</span></li>
         <li><span>🛡️</span><span><b>Farm defences:</b> open your home (🏡) to build gates the raiders must break first, watchtowers that shoot them, and spike traps at the gates.</span></li>
@@ -539,6 +550,13 @@ kbd.k { font: 800 12px/1 var(--font-body); background: var(--ink); color: var(--
       <div class="sheet-head"><div><h2>Farm shop</h2><p class="sub">Buy seeds and snacks with coins.</p></div><button class="btn" id="closeShop">Close</button></div>
       <div class="wallet" id="wallet"></div>
       <div id="shopList"></div>
+    </div>
+  </div>
+  <div class="sheet-wrap" id="cookWrap" hidden>
+    <div class="sheet">
+      <div class="sheet-head"><div><h2>🍲 Cooking pot</h2><p class="sub">Cook crops and fish into meals. Eat them to heal, or sell them at the Merchant.</p></div><button class="btn" id="closeCook">Close</button></div>
+      <p class="fedline" id="cookFed"></p>
+      <div id="cookList"></div>
     </div>
   </div>
   <div class="sheet-wrap" id="sellWrap" hidden>
@@ -623,6 +641,7 @@ const ITEMS = {
   pinecone: { name: 'Pine cone', em: '🌲' }, dew: { name: 'Spirit dew', em: '💧' },
   pumpkin: { name: 'Pumpkin', em: '🎃' }, fur: { name: 'Wolf fur', em: '🐺' }, tusk: { name: 'Boar tusk', em: '🦴' }, claw: { name: 'Burrow claw', em: '🦡' }, fang: { name: 'Alpha fang', em: '🦷' }, crown: { name: 'Royal tusk', em: '👑' }, core: { name: 'Earth core', em: '🔮' },
   minnow: { name: 'Minnow', em: '🐟' }, sunfish: { name: 'Sunfish', em: '🐠' }, crawdad: { name: 'Crawdad', em: '🦞' }, puffer: { name: 'Pufferfish', em: '🐡' }, koi: { name: 'Golden koi', em: '🎏' },
+  grilled: { name: 'Grilled fish', em: '🍢' }, stew: { name: 'Veggie stew', em: '🍲' }, pie: { name: 'Berry pie', em: '🥧' }, soup: { name: 'Pumpkin soup', em: '🥣' }, feast: { name: "Fisher's feast", em: '🍱' },
   cseed: { name: 'Carrot seeds', em: '🌱' }, bseed: { name: 'Berry seeds', em: '🌱' }, mseed: { name: 'Mushroom spores', em: '🌱' }, pseed: { name: 'Pumpkin seeds', em: '🌱' },
 };
 const FOODS = ['carrot', 'berry', 'acorn', 'mushroom', 'bug'];
@@ -650,6 +669,18 @@ const FISH = {
   koi: { name: 'Golden koi', em: '🎏', v: 45, zone: 0.1, spd: 3, w: () => 4 + luckK() * 6, note: 'Very rare, any time' },
 };
 const SELL = { minnow: 5, sunfish: 11, crawdad: 14, puffer: 18, koi: 45, clover: 6, pinecone: 7, lily: 10, moss: 10, feather: 15, sparkle: 45, dew: 40 };
+// meals cooked at the pot by the well; `fish` in a recipe means any fish, cheapest first
+const MEALS = {
+  grilled: { need: { fish: 1 }, heal: 1, stam: 40, v: 18, what: 'Heals 1 heart and gives back some stamina' },
+  stew: { need: { carrot: 2, mushroom: 1 }, heal: 2, stam: 100, v: 28, what: 'Heals 2 hearts and fills your stamina' },
+  pie: { need: { berry: 3, acorn: 1 }, heal: 1, fed: 90, v: 32, what: 'Heals 1 heart. Well fed for 90s: sprinting costs half the stamina' },
+  soup: { need: { pumpkin: 1, carrot: 1 }, heal: 99, stam: 100, v: 45, what: 'Heals all your hearts and fills your stamina' },
+  feast: { need: { fish: 2, berry: 1, mushroom: 1 }, heal: 99, stam: 100, fed: 180, v: 70, what: 'Heals everything. Well fed for 3 minutes' },
+};
+Object.entries(MEALS).forEach(([k, m]) => { SELL[k] = m.v; });
+const COOKFX = {};
+// what a walking buddy sniffs out: [usual find, rarer find]
+const BUDDY_FIND = { bunny: ['carrot', 'clover'], squirrel: ['acorn', 'pinecone'], frog: ['bug', 'lily'], fawn: ['berry', 'moss'], owl: ['mushroom', 'feather'] };
 const DEF = {
   gate: { em: '🚪', label: 'Farm gates', names: ['No gates', 'Wooden gates', 'Iron gates', 'Stone gates'], hp: [0, 12, 25, 45], cost: [0, 60, 160, 320], mats: [null, { fur: 3 }, { tusk: 4 }, { claw: 2, fur: 4 }], what: l => `Raiders must break the gates before they get in · ${DEF.gate.hp[l]} HP each night` },
   tower: { em: '🏹', label: 'Watchtowers', names: ['No watchtower', 'Watchtower', 'Archer tower', 'Twin towers'], dmg: [0, 1, 1.5, 1.5], cd: [0, 2.6, 1.8, 1.6], cost: [0, 120, 260, 480], mats: [null, { fur: 2 }, { tusk: 3 }, { claw: 2, fang: 1 }], what: l => l ? `Shoots at enemies near the farm · ${DEF.tower.dmg[l]} damage every ${DEF.tower.cd[l]}s${l >= 3 ? ' · two towers' : ''}` : 'Shoots at enemies near the farm' },
@@ -705,6 +736,7 @@ const QUEST_POOL = [
   { t: 'forage', n: 3, txt: 'Forage 3 acorns or mushrooms', r: [15, 20] },
   { t: 'settle', n: 1, txt: 'Settle a new friend into your barn', r: [25, 30] },
   { t: 'fish', n: 2, txt: 'Catch 2 fish at the creek', r: [20, 25], need: () => !!S.rod },
+  { t: 'cook', n: 1, txt: 'Cook a meal at the cooking pot', r: [20, 25] },
 ];
 const CYCLE = 240;
 
@@ -728,6 +760,7 @@ const MERCH = { x: -28, z: -1.5 };
 const TRADE = { x: -28, z: 4.5 };
 const SMITH = { x: -28, z: 10.5 };
 const QBOARD = { x: -40, z: -10.2 };
+const COOK = { x: -39.5, z: 5.5 };
 const TOWERS = [{ x: -38, z: 21.5 }, { x: -31, z: -15.5 }];
 const HOME = { x: -44, z: -16.5 };
 const EXTRA_FIELD = FIELD_X.map(x => [x, 19]);
@@ -927,8 +960,30 @@ const waterTex = (() => {
   geo.setIndex(idx); geo.computeVertexNormals();
   const water = new T.Mesh(geo, REAL ? new T.MeshStandardMaterial({ map: waterTex, color: 0x6f9fb0, transparent: true, opacity: 0.82, roughness: 0.12, metalness: 0.25 }) : new T.MeshPhongMaterial({ map: waterTex, transparent: true, opacity: 0.88, shininess: 90, specular: 0x88ccee }));
   water.receiveShadow = true; scene.add(water);
-  MARSH_PONDS.forEach(([px, pz, k]) => { const m = new T.Mesh(new T.CircleGeometry(4.6 * k, 18), water.material); m.rotation.x = -Math.PI / 2; m.position.set(px, WATER_Y + 0.01, pz); scene.add(m); });
-  const pond = new T.Mesh(new T.CircleGeometry(4.6, 18), water.material); pond.rotation.x = -Math.PI / 2; pond.position.set(-21, WATER_Y + 0.01, 26.6); scene.add(pond);
+  const pondMat = water.material.clone(); pondMat.defines = { POND: '' };
+  [water.material, pondMat].forEach(m => {
+    m.onBeforeCompile = sh => {
+      sh.uniforms.uTime = windU; sh.uniforms.uSun = waterSun;
+      sh.vertexShader = 'varying vec2 vWUv;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vWUv = uv;');
+      sh.fragmentShader = 'uniform float uTime; uniform float uSun; varying vec2 vWUv;\n' + sh.fragmentShader
+        .replace('#include <map_fragment>', `#include <map_fragment>
+          #ifdef POND
+            float edge = length(vWUv - 0.5) * 2.0; float along = atan(vWUv.y - 0.5, vWUv.x - 0.5) * 3.0;
+          #else
+            float edge = abs(vWUv.y - 0.5) * 2.0; float along = vWUv.x * 30.0;
+          #endif
+          float foam = smoothstep(0.8, 0.97, edge + sin(along + uTime * 2.2) * 0.035 + sin(along * 2.7 - uTime * 1.4) * 0.02);
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.94, 0.98, 1.0), foam * 0.6);
+          diffuseColor.a = max(diffuseColor.a, foam * 0.92);`)
+        .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+          float gl1 = sin(vWUv.x * 57.0 + uTime * 1.7) * sin(vWUv.y * 21.0 - uTime * 1.3 + vWUv.x * 9.0) * sin(vWUv.x * 13.0 - vWUv.y * 17.0 + uTime * 0.9);
+          float glint = pow(max(gl1, 0.0), 14.0) * (1.0 - foam);
+          totalEmissiveRadiance += vec3(1.0, 0.97, 0.88) * glint * 1.1 * uSun;`);
+    };
+    m.customProgramCacheKey = () => 'water' + (m.defines && m.defines.POND !== undefined ? 'p' : 'c');
+  });
+  MARSH_PONDS.forEach(([px, pz, k]) => { const m = new T.Mesh(new T.CircleGeometry(4.6 * k, 18), pondMat); m.rotation.x = -Math.PI / 2; m.position.set(px, WATER_Y + 0.01, pz); scene.add(m); });
+  const pond = new T.Mesh(new T.CircleGeometry(4.6, 18), pondMat); pond.rotation.x = -Math.PI / 2; pond.position.set(-21, WATER_Y + 0.01, 26.6); scene.add(pond);
   // lily pads
   const padG = new T.CylinderGeometry(0.55, 0.55, 0.05, 10, 1, false, 0.4, Math.PI * 1.8);
   for (let i = 0; i < 16; i++) {
@@ -940,6 +995,26 @@ const waterTex = (() => {
 })();
 
 // ================= TREES, ROCKS, GRASS (instanced) =================
+// one wind for everything that sways: windU is time, windAmp rises in rain and storms
+const windAmp = { value: 1 }, waterSun = { value: 1 };
+const WIND_GLSL = `
+  #ifdef USE_INSTANCING
+    vec2 wp = vec2(instanceMatrix[3][0], instanceMatrix[3][2]);
+    float gust = 0.55 + 0.45 * sin(dot(wp, vec2(0.045, 0.03)) - uTime * 0.8);
+    float hk = WIND_H;
+    transformed.x += sin(uTime * 1.3 + wp.x * 0.21 + wp.y * 0.17) * uWind * gust * WIND_K * hk;
+    transformed.z += cos(uTime * 1.05 + wp.y * 0.19) * uWind * gust * WIND_K * 0.5 * hk;
+  #endif`;
+// foliage gets its own material so rocks and flowers that share the plain white one stay still
+function windMat(k, h) {
+  const m = REAL ? realMat({ color: white }) : new T.MeshToonMaterial({ color: white, gradientMap: grad });
+  m.onBeforeCompile = sh => {
+    sh.uniforms.uTime = windU; sh.uniforms.uWind = windAmp;
+    sh.vertexShader = 'uniform float uTime; uniform float uWind;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>' + WIND_GLSL.split('WIND_K').join(k.toFixed(3)).split('WIND_H').join(h));
+  };
+  m.customProgramCacheKey = () => 'wind' + k + h;
+  seeThrough(m); return m;
+}
 const obstacles = [];
 const sourceNear = (x, z, d) => SOURCES.some(s => Math.hypot(s.x - x, s.z - z) < d) || STUMPS.some(s => Math.hypot(s[0] - x, s[1] - z) < d);
 const trees = [];
@@ -964,6 +1039,7 @@ for (let i = 0; i < 1600 && trees.length < 470; i++) {
 SOURCES.filter(s => s.item === 'acorn').forEach(s => trees.push({ x: s.x, z: s.z, s: 1.55, kind: 'oak', src: s }));
 trees.forEach(t => obstacles.push({ x: t.x, z: t.z, r: 0.55 * t.s + 0.35 }));
 
+const white = 0xffffff;
 const dummy = new T.Object3D();
 // Instanced scenery is split into CHUNK-sized tiles, each with its own bounding sphere, so the
 // camera and the sun's shadow pass skip every tile out of view instead of drawing the whole map.
@@ -990,21 +1066,31 @@ function instanced(geo, mat, list, place, colorFn) {
   });
   return { parts, set castShadow(v) { parts.forEach(m => { m.castShadow = v; }); } };
 }
-const white = 0xffffff;
 const col = (h, s, l) => new T.Color().setHSL(h, s, l);
-const pines = trees.filter(t => t.kind === 'pine'), oaks = trees.filter(t => t.kind === 'oak'), rounds = trees.filter(t => t.kind === 'round');
+trees.filter(t => t.kind === 'round').forEach((t, i) => { if (i % 5 === 0) t.kind = 'blossom'; else if (i % 5 === 2 || i % 5 === 4) t.kind = 'birch'; });
+const pines = trees.filter(t => t.kind === 'pine'), oaks = trees.filter(t => t.kind === 'oak'), rounds = trees.filter(t => t.kind === 'round' || t.kind === 'blossom'), birches = trees.filter(t => t.kind === 'birch');
 const trunkG = flat(new T.CylinderGeometry(0.28, 0.4, 1.8, 6).translate(0, 0.9, 0));
-instanced(trunkG, M(0x7a5232), trees, (d, t) => { d.position.set(t.x, height(t.x, t.z) - 0.1, t.z); d.scale.setScalar(t.s); d.rotation.set(0, 0, 0); });
+instanced(trunkG, M(0x7a5232), trees.filter(t => t.kind !== 'birch'), (d, t) => { d.position.set(t.x, height(t.x, t.z) - 0.1, t.z); d.scale.setScalar(t.s); d.rotation.set(0, 0, 0); });
 const coneG = [flat(new T.ConeGeometry(1.9, 2.6, 7).translate(0, 2.6, 0)), flat(new T.ConeGeometry(1.5, 2.2, 7).translate(0, 3.9, 0)), flat(new T.ConeGeometry(1.0, 1.8, 7).translate(0, 5.0, 0))];
 const pineCol = t => col(0.38 + Math.abs(Math.sin(t.x * 1.7)) * 0.05, 0.34, 0.24 + Math.abs(Math.sin(t.z)) * 0.08);
-coneG.forEach(g => instanced(g, M(white), pines, (d, t) => { d.position.set(t.x, height(t.x, t.z), t.z); d.scale.setScalar(t.s); d.rotation.set(0, t.x, 0); }, pineCol));
+const pineMat = windMat(0.022, 'max(position.y - 1.2, 0.0)'), canopyMat = windMat(0.05, '1.0');
+coneG.forEach(g => instanced(g, pineMat, pines, (d, t) => { d.position.set(t.x, height(t.x, t.z), t.z); d.scale.setScalar(t.s); d.rotation.set(0, t.x, 0); }, pineCol));
 const blobG = flat(new T.IcosahedronGeometry(1, 1));
-const oakCol = t => col(0.22 + Math.abs(Math.sin(t.x)) * 0.08, 0.4, 0.31 + Math.abs(Math.cos(t.z)) * 0.08);
+const oakCol = t => t.kind === 'blossom' ? col(0.94 + Math.abs(Math.sin(t.x)) * 0.03, 0.78, 0.7 + Math.abs(Math.cos(t.z)) * 0.06) : col(0.22 + Math.abs(Math.sin(t.x)) * 0.08, 0.4, 0.31 + Math.abs(Math.cos(t.z)) * 0.08);
 const leafy = oaks.concat(rounds);
-instanced(blobG, M(white), leafy, (d, t) => { d.position.set(t.x, height(t.x, t.z) + 3.3 * t.s, t.z); d.scale.set(2.3 * t.s, 1.9 * t.s, 2.3 * t.s); d.rotation.set(0, t.z, 0); }, oakCol);
-instanced(blobG, M(white), leafy, (d, t) => { d.position.set(t.x + 1.1 * t.s, height(t.x, t.z) + 2.7 * t.s, t.z + 0.4 * t.s); d.scale.setScalar(1.35 * t.s); d.rotation.set(t.x, 0, 0); }, t => oakCol(t).offsetHSL(0, 0, 0.04));
-instanced(blobG, M(white), leafy, (d, t) => { d.position.set(t.x - 0.9 * t.s, height(t.x, t.z) + 3.0 * t.s, t.z - 0.8 * t.s); d.scale.setScalar(1.25 * t.s); d.rotation.set(0, t.x, 0); }, t => oakCol(t).offsetHSL(0, 0, -0.03));
+instanced(blobG, canopyMat, leafy, (d, t) => { d.position.set(t.x, height(t.x, t.z) + 3.3 * t.s, t.z); d.scale.set(2.3 * t.s, 1.9 * t.s, 2.3 * t.s); d.rotation.set(0, t.z, 0); }, oakCol);
+instanced(blobG, canopyMat, leafy, (d, t) => { d.position.set(t.x + 1.1 * t.s, height(t.x, t.z) + 2.7 * t.s, t.z + 0.4 * t.s); d.scale.setScalar(1.35 * t.s); d.rotation.set(t.x, 0, 0); }, t => oakCol(t).offsetHSL(0, 0, 0.04));
+instanced(blobG, canopyMat, leafy, (d, t) => { d.position.set(t.x - 0.9 * t.s, height(t.x, t.z) + 3.0 * t.s, t.z - 0.8 * t.s); d.scale.setScalar(1.25 * t.s); d.rotation.set(0, t.x, 0); }, t => oakCol(t).offsetHSL(0, 0, -0.03));
 
+// birches: tall white trunks with dark bark marks and light, airy canopies
+const birchTrunkG = flat(new T.CylinderGeometry(0.17, 0.24, 4.2, 7).translate(0, 2.1, 0));
+instanced(birchTrunkG, M(0xece6da), birches, (d, t) => { d.position.set(t.x, height(t.x, t.z) - 0.1, t.z); d.scale.setScalar(t.s); d.rotation.set(0, t.x, 0); });
+const barkG = flat(new T.CylinderGeometry(0.205, 0.205, 0.1, 7));
+[0.9, 1.7, 2.6, 3.3].forEach((h, j) => instanced(barkG, M(0x3a3430), birches, (d, t) => { d.position.set(t.x, height(t.x, t.z) + h * t.s, t.z); d.scale.set(t.s * (1.1 - h * 0.07), t.s * (j % 2 ? 0.7 : 1), t.s * (1.1 - h * 0.07)); d.rotation.set(0, t.z + j, 0); }));
+const birchCol = t => col(0.17 + Math.abs(Math.sin(t.x * 2)) * 0.05, 0.55, 0.47 + Math.abs(Math.cos(t.z)) * 0.07);
+instanced(blobG, canopyMat, birches, (d, t) => { d.position.set(t.x, height(t.x, t.z) + 4.6 * t.s, t.z); d.scale.set(1.5 * t.s, 2.1 * t.s, 1.5 * t.s); d.rotation.set(0, t.z, 0); }, birchCol);
+instanced(blobG, canopyMat, birches, (d, t) => { d.position.set(t.x + 0.7 * t.s, height(t.x, t.z) + 3.7 * t.s, t.z - 0.3 * t.s); d.scale.setScalar(1.0 * t.s); d.rotation.set(t.x, 0, 0); }, t => birchCol(t).offsetHSL(0, 0, 0.05));
+const blossoms = trees.filter(t => t.kind === 'blossom');
 const bushes = [];
 for (let i = 0; i < 1500 && bushes.length < 280; i++) {
   const t = trees[Math.floor(rnd() * trees.length)], a = rr(0, 6.28), d = rr(1.6, 3.4) * t.s, x = t.x + Math.cos(a) * d, z = t.z + Math.sin(a) * d;
@@ -1029,7 +1115,8 @@ for (let i = 0; i < (REAL ? 22000 : 12000) && grass.length < (REAL ? 7000 : 4000
   grass.push({ x, z, s: rr(0.6, 1.3), m: sdRect(x, z, MEADOW) < 0 || sdRect(x, z, FIELDS) < 0 });
 }
 const tuftG = REAL ? new T.ConeGeometry(0.07, 0.85, 3).translate(0, 0.42, 0) : new T.ConeGeometry(0.13, 0.75, 3).translate(0, 0.37, 0);
-const tuftMat = M(white);
+const tuftMat = REAL ? realMat({ color: white }) : new T.MeshToonMaterial({ color: white, gradientMap: grad });
+seeThrough(M(white));
 const seeU = { uP: { value: new T.Vector3() }, uC: { value: new T.Vector3() }, uOn: { value: 1 } };
 function seeThrough(mat) {
   const prev = mat.onBeforeCompile;
@@ -1057,15 +1144,17 @@ function seeThrough(mat) {
 }
 // gentle wind sway on grass via shader injection
 tuftMat.onBeforeCompile = sh => {
-  sh.uniforms.uTime = windU;
-  sh.vertexShader = 'uniform float uTime;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+  sh.uniforms.uTime = windU; sh.uniforms.uWind = windAmp;
+  sh.vertexShader = 'uniform float uTime; uniform float uWind;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
     #ifdef USE_INSTANCING
       float ph = instanceMatrix[3][0] * 0.35 + instanceMatrix[3][2] * 0.27;
-      transformed.x += sin(uTime * 1.8 + ph) * 0.12 * position.y;
-      transformed.z += cos(uTime * 1.3 + ph) * 0.06 * position.y;
+      float gust = 0.55 + 0.45 * sin(instanceMatrix[3][0] * 0.045 + instanceMatrix[3][2] * 0.03 - uTime * 0.8);
+      transformed.x += sin(uTime * 1.8 + ph) * 0.12 * uWind * gust * position.y;
+      transformed.z += cos(uTime * 1.3 + ph) * 0.06 * uWind * gust * position.y;
     #endif`);
 };
 const windU = { value: 0 };
+tuftMat.customProgramCacheKey = () => 'grasswind';
 seeThrough(tuftMat); seeThrough(M(0x7a5232));
 ['a', 'b', 'c'].forEach((_, k) => instanced(tuftG, tuftMat, grass, (d, g) => { d.position.set(g.x + (k - 1) * 0.16, height(g.x, g.z), g.z + (k === 1 ? 0.12 : 0)); d.scale.setScalar(g.s * (k === 1 ? 1.15 : 0.9)); d.rotation.set((k - 1) * 0.25, g.x + k, 0); }, g => col((g.m ? 0.2 : 0.24) + Math.abs(Math.sin(g.z * 5)) * 0.06, 0.4, (g.m ? 0.44 : 0.35) + Math.abs(Math.sin(g.x * 7)) * 0.1)).castShadow = false);
 const flowers = [];
@@ -1104,8 +1193,14 @@ function glowAt(x, y, z, size = 1) {
   const pool = new T.Mesh(new T.CircleGeometry(4 * size, 20), new T.MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: T.AdditiveBlending, opacity: 0 })); pool.rotation.x = -Math.PI / 2; pool.position.set(x, height(x, z) + 0.08, z); scene.add(pool);
   glows.push({ halo, pool, seed: Math.random() * 10 });
 }
+function updateCook(dt, time) {
+  if (!COOKFX.flame) return; const f = COOKFX.flame;
+  f.scale.set(1 + Math.sin(time * 9) * 0.08, 1 + Math.sin(time * 13) * 0.15 + Math.sin(time * 5) * 0.08, 1 + Math.cos(time * 8) * 0.08); f.rotation.y += dt * 2;
+  const boost = COOKFX.puff ? 1.8 : 1; if (COOKFX.puff) { COOKFX.puff -= dt * 0.5; if (COOKFX.puff < 0) COOKFX.puff = 0; }
+  COOKFX.steam.forEach(s => { s.t += dt * 0.35 * boost; if (s.t > 1) s.t -= 1; s.m.position.set(Math.sin(s.t * 6 + time) * 0.12, 1.7 + s.t * 1.4, Math.cos(s.t * 5) * 0.1); s.m.scale.setScalar((0.07 + s.t * 0.16) * boost); s.m.material.opacity = Math.sin(s.t * Math.PI) * 0.28; });
+}
 function updateGlows() {
-  const nk = nightK(), t = clock;
+  const nk = nightK(), t = clock; waterSun.value = 1 - nk;
   glows.forEach(g => { const fl = 0.92 + Math.sin(t * 7 + g.seed) * 0.05 + Math.sin(t * 13 + g.seed) * 0.03; g.halo.material.opacity = nk * 0.85 * fl; g.pool.material.opacity = nk * 0.4 * fl; g.halo.visible = g.pool.visible = nk > 0.02; });
 }
 function buildCamp() {
@@ -1195,6 +1290,34 @@ function buildCamp() {
     mesh(new T.CylinderGeometry(0.08, 0.1, 3, 6), 0x3a2a1a, lx, 1.5, lz, g); mesh(new T.SphereGeometry(0.26, 10, 8), basic(0xffd08a), lx, 3.15, lz, g, false); glowAt(lx, 3.15, lz); mesh(new T.ConeGeometry(0.36, 0.26, 6), 0x3a2a1a, lx, 3.48, lz, g);
     obstacles.push({ x: lx, z: lz, r: 0.35 });
   });
+  // cooking pot: stone ring, log fire, tripod and a bubbling cauldron, with a little prep table
+  {
+    const cg = new T.Group(), ckS = new T.SphereGeometry(1, 10, 8); cg.position.set(COOK.x, 0, COOK.z); g.add(cg); cg.updateMatrixWorld();
+    for (let i = 0; i < 10; i++) { const a = i / 10 * 6.283, st = mesh(flat(new T.DodecahedronGeometry(0.2, 0)), 0x8f8a80, Math.cos(a) * 0.82, 0.12, Math.sin(a) * 0.82, cg); st.rotation.set(a, a * 2, 0); st.scale.set(1.1, 0.8, 1); }
+    [0, 1.05, 2.1].forEach(a => { const l = mesh(new T.CylinderGeometry(0.09, 0.09, 1.1, 6), 0x6b4426, 0, 0.14, 0, cg); l.rotation.order = 'YXZ'; l.rotation.set(0, a, Math.PI / 2); });
+    const fx = new T.Group(); fx.position.set(COOK.x, 0, COOK.z); scene.add(fx); // animated parts live outside the static group
+    const flame = new T.Group(); flame.position.set(0, 0.25, 0); fx.add(flame); COOKFX.flame = flame;
+    mesh(new T.ConeGeometry(0.34, 0.75, 7).translate(0, 0.37, 0), new T.MeshBasicMaterial({ color: 0xff7a2a, transparent: true, opacity: 0.9 }), 0, 0, 0, flame, false);
+    mesh(new T.ConeGeometry(0.2, 0.5, 7).translate(0, 0.25, 0), new T.MeshBasicMaterial({ color: 0xffd25a }), 0, 0.02, 0, flame, false);
+    const apex = new T.Vector3(0, 2.5, 0);
+    [0.3, 2.4, 4.5].forEach(a => { const foot = new T.Vector3(Math.cos(a) * 1.15, 0, Math.sin(a) * 1.15), L = foot.distanceTo(apex); const leg = mesh(new T.CylinderGeometry(0.05, 0.06, L, 5).rotateX(Math.PI / 2), 0x5a3a22, (foot.x + apex.x) / 2, (foot.y + apex.y) / 2, (foot.z + apex.z) / 2, cg); leg.lookAt(cg.localToWorld(apex.clone())); });
+    mesh(new T.CylinderGeometry(0.02, 0.02, 0.75, 4), 0x3a3a3a, 0, 2.1, 0, cg, false);
+    const pot = [[0.001, 0], [0.3, 0.02], [0.5, 0.16], [0.58, 0.4], [0.52, 0.66], [0.49, 0.72], [0.56, 0.78], [0.5, 0.8]].map(([x, y]) => new T.Vector2(x, y));
+    mesh(new T.LatheGeometry(pot, 14), M(0x34343a, { side: T.DoubleSide }), 0, 0.95, 0, cg);
+    [-1, 1].forEach(q => mesh(new T.TorusGeometry(0.1, 0.025, 5, 10), 0x34343a, q * 0.57, 1.62, 0, cg).rotation.y = Math.PI / 2);
+    const soup = mesh(new T.CircleGeometry(0.47, 16), M(0xd98b3a), 0, 1.63, 0, cg, false); soup.rotation.x = -Math.PI / 2;
+    [[0.15, 0.1, 0xf08a2c], [-0.18, -0.05, 0x7fc14a], [0.02, -0.2, 0xe8e0d0]].forEach(([x, z, c]) => mesh(ckS, c, x, 1.64, z, cg, false).scale.set(0.08, 0.04, 0.08));
+    COOKFX.steam = [0, 1, 2, 3].map(i => { const m = new T.Mesh(ckS, new T.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false })); m.position.set(0, 1.7, 0); m.scale.setScalar(0.01); fx.add(m); return { m, t: i / 4 }; });
+    // prep table with a cutting board, a carrot and a bowl
+    const tb = new T.Group(); tb.position.set(1.9, 0, -0.4); tb.rotation.y = -0.4; cg.add(tb);
+    mesh(new T.BoxGeometry(1.4, 0.1, 0.8), 0xb07a45, 0, 0.9, 0, tb);
+    [[-0.6, -0.32], [0.6, -0.32], [-0.6, 0.32], [0.6, 0.32]].forEach(([x, z]) => mesh(new T.BoxGeometry(0.1, 0.9, 0.1), 0x8a5b34, x, 0.45, z, tb));
+    mesh(new T.BoxGeometry(0.55, 0.05, 0.38), 0xe2c08a, -0.25, 0.97, 0, tb);
+    const cr = mesh(new T.ConeGeometry(0.06, 0.32, 6), 0xf08a2c, -0.25, 1.03, 0, tb); cr.rotation.z = Math.PI / 2;
+    mesh(new T.CylinderGeometry(0.17, 0.11, 0.12, 10), 0xf2efe6, 0.35, 1.01, 0.05, tb);
+    glowAt(COOK.x, 0.8, COOK.z, 0.8);
+    obstacles.push({ x: COOK.x, z: COOK.z, r: 1.25 }, { x: COOK.x + 1.75, z: COOK.z - 0.3, r: 0.8 });
+  }
   // stumps for owls
   STUMPS.forEach(([x, z]) => { const y = height(x, z); mesh(flat(new T.CylinderGeometry(0.8, 0.95, 1.2, 8)), 0x7a5232, x, y + 0.6, z, g); mesh(new T.CylinderGeometry(0.78, 0.78, 0.04, 8), 0xd9b98a, x, y + 1.21, z, g, false); obstacles.push({ x, z, r: 1.1 }); });
   const logG = flat(new T.CylinderGeometry(0.2, 0.2, 2.2, 6));
@@ -1342,11 +1465,24 @@ function eye(parent, x, y, z, s = 1) {
   mesh(sphereG, 0xffffff, x + 0.02 * s, y + 0.025 * s, z + 0.045 * s, parent, false).scale.setScalar(0.022 * s);
 }
 const GOLD = { body: 0xf2c14e, belly: 0xfff0b8, accent: 0xd9a32c };
+// fresnel rim light: bright edges that pulse slowly, so rare animals read from far away
+function rimify(mat, hex) {
+  if (mat.userData.rim) return mat; mat.userData.rim = { value: new T.Color(hex) };
+  const prev = mat.onBeforeCompile;
+  mat.onBeforeCompile = (sh, r) => {
+    if (prev) prev(sh, r);
+    sh.uniforms.uTime = windU; sh.uniforms.uRim = mat.userData.rim;
+    sh.fragmentShader = 'uniform float uTime; uniform vec3 uRim;\n' + sh.fragmentShader.replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+      float rimF = pow(1.0 - clamp(abs(dot(normalize(vViewPosition), normal)), 0.0, 1.0), 2.6);
+      totalEmissiveRadiance += uRim * rimF * (0.75 + 0.25 * sin(uTime * 2.6));`);
+  };
+  mat.customProgramCacheKey = () => 'rim'; mat.needsUpdate = true; return mat;
+}
 function blob(c, p, s, parent, golden) {
-  const mat = golden ? M(c, { emissive: 0x4a3000 }) : M(c);
+  const mat = golden ? rimify(M(c, { emissive: 0x4a3000 }), 0xffd25a) : M(c);
   const m = new T.Mesh(sphereG, mat); m.position.set(p[0], p[1], p[2]); m.scale.set(s[0], s[1], s[2]); m.castShadow = true; parent.add(m); return m;
 }
-const spiritMat = REAL ? realMat({ color: 0xd4f1ff, emissive: 0x2f6f8f, transparent: true, opacity: 0.82, roughness: 0.4 }) : new T.MeshToonMaterial({ color: 0xd4f1ff, emissive: 0x2f6f8f, gradientMap: grad, transparent: true, opacity: 0.82 });
+const spiritMat = rimify(REAL ? realMat({ color: 0xd4f1ff, emissive: 0x2f6f8f, transparent: true, opacity: 0.82, roughness: 0.4 }) : new T.MeshToonMaterial({ color: 0xd4f1ff, emissive: 0x2f6f8f, gradientMap: grad, transparent: true, opacity: 0.82 }), 0x9fe8ff);
 function spiritify(parts) {
   parts.g.traverse(o => { if (o.isMesh && !['22170f', 'ffffff'].includes(o.material.color.getHexString())) o.material = spiritMat; });
   const arr = []; for (let i = 0; i < 22; i++) arr.push(R(-1, 1), R(0.3, 2.6), R(-1, 1));
@@ -1405,6 +1541,22 @@ function buildCreature(sp, golden) {
     const beak = mesh(new T.ConeGeometry(0.06, 0.16, 5), 0xe5a03a, 0, -0.1, 0.46, head); beak.rotation.x = Math.PI / 2 + 0.4;
     [-1, 1].forEach(s => b(0xe5a03a, [0.16 * s, 0.05, 0.12], [0.08, 0.05, 0.12]));
   }
+  // extra detail: rosy cheeks, back feet, whiskers, spots and feather marks
+  const H = parts.head, cheek = (x, y, z, s) => { if (H) blob(0xf7a7b8, [x, y, z], [s, s * 0.6, s * 0.35], H); };
+  if (sp === 'bunny') {
+    [-1, 1].forEach(s => { cheek(0.24 * s, -0.08, 0.27, 0.07); b('body', [0.24 * s, 0.12, -0.28], [0.13, 0.09, 0.26]); [0.015, -0.03].forEach(y => { const w = mesh(new T.CylinderGeometry(0.005, 0.005, 0.3, 3), 0x8a7a6a, 0.17 * s, -0.05 + y, 0.34, H, false); w.rotation.z = Math.PI / 2 + s * y * 4; }); });
+    b('belly', [0, 0.82, 0.4], [0.2, 0.16, 0.12]);
+  } else if (sp === 'squirrel') {
+    [-1, 1].forEach(s => { cheek(0.17 * s, -0.06, 0.2, 0.05); b('accent', [0.14 * s, 0.1, -0.16], [0.09, 0.08, 0.16]); });
+    blob(0x2a1a10, [0, -0.03, 0.31], [0.04, 0.03, 0.03], H); b('belly', [0, 1.27, 0.06], [0.17, 0.15, 0.15], parts.tail);
+  } else if (sp === 'frog') {
+    [[0.18, 0.66, -0.12], [-0.22, 0.64, 0.02], [0.05, 0.7, -0.28], [-0.1, 0.68, -0.38]].forEach(([x, y, z]) => b('accent', [x, y, z], [0.09, 0.04, 0.09]));
+    [-1, 1].forEach(s => { cheek(0.34 * s, 0.02, 0.36, 0.06); b('body', [0.3 * s, 0.12, 0.42], [0.1, 0.13, 0.12]); });
+  } else if (sp === 'fawn') {
+    [-1, 1].forEach(s => cheek(0.16 * s, -0.07, 0.2, 0.05)); b('belly', [0, 1.6, 0.5], [0.16, 0.18, 0.14]);
+  } else if (sp === 'owl') {
+    [[0, 0.82], [-0.15, 0.68], [0.15, 0.68], [0, 0.52], [-0.12, 0.38], [0.12, 0.38]].forEach(([x, y]) => { const v = b('accent', [x, y, 0.53], [0.06, 0.025, 0.03]); v.rotation.z = 0.5; const v2 = b('accent', [x + 0.05, y, 0.53], [0.06, 0.025, 0.03]); v2.rotation.z = -0.5; });
+  }
   if (golden) {
     const pts = new T.BufferGeometry(); const arr = []; for (let i = 0; i < 14; i++) arr.push(R(-0.9, 0.9), R(0.3, 2), R(-0.9, 0.9));
     pts.setAttribute('position', new T.Float32BufferAttribute(arr, 3));
@@ -1437,8 +1589,14 @@ function animateCreature(c, sp, dt, t, moving, sleeping) {
 const player = { x: CAMP.x + 6, z: CAMP.z + 9, yaw: Math.PI, moving: false, walk: 0, tx: null, tz: null, kx: 0, kz: 0 };
 const pg = new T.Group(); scene.add(pg);
 const pBody = new T.Group(); pg.add(pBody);
-const legs = [-1, 1].map(s => { const l = new T.Group(); l.position.set(0.18 * s, 0.75, 0); pBody.add(l); mesh(new T.CylinderGeometry(0.13, 0.12, 0.75, 7).translate(0, -0.37, 0), 0x3f4a5c, 0, 0, 0, l); mesh(sphereG, 0x5a3a22, 0, -0.74, 0.06, l).scale.set(0.15, 0.1, 0.22); return l; });
-mesh(new T.CylinderGeometry(0.36, 0.44, 0.95, 10), 0x4f8a64, 0, 1.2, 0, pBody);
+const legs = [-1, 1].map(s => { const l = new T.Group(); l.position.set(0.18 * s, 0.75, 0); pBody.add(l); mesh(new T.CylinderGeometry(0.14, 0.13, 0.62, 8).translate(0, -0.31, 0), 0x3d5a80, 0, 0, 0, l); mesh(new T.CylinderGeometry(0.15, 0.16, 0.2, 8), 0x6b4226, 0, -0.62, 0, l); mesh(sphereG, 0x6b4226, 0, -0.7, 0.08, l).scale.set(0.16, 0.1, 0.23); mesh(new T.BoxGeometry(0.3, 0.05, 0.44), 0x3a2416, 0, -0.77, 0.06, l); return l; });
+mesh(new T.LatheGeometry([[0.001, 0.98], [0.42, 1.0], [0.43, 1.2], [0.4, 1.46], [0.32, 1.64], [0.001, 1.68]].map(([x, y]) => new T.Vector2(x, y)), 14), 0x4f8a64, 0, 0, 0, pBody);
+mesh(new T.LatheGeometry([[0.001, 0.7], [0.4, 0.71], [0.455, 0.88], [0.45, 1.06], [0.001, 1.07]].map(([x, y]) => new T.Vector2(x, y)), 14), 0x3d5a80, 0, 0, 0, pBody);
+{ // overall bib, pocket, buttons and straps
+  const bib = mesh(new T.BoxGeometry(0.5, 0.42, 0.08), 0x3d5a80, 0, 1.22, 0.39, pBody); bib.rotation.x = -0.06;
+  mesh(new T.BoxGeometry(0.22, 0.13, 0.02), 0x2f4866, 0, 1.18, 0.44, pBody, false);
+  [-1, 1].forEach(q => { mesh(sphereG, 0xf2c14e, q * 0.18, 1.38, 0.43, pBody, false).scale.setScalar(0.04); const st = mesh(new T.BoxGeometry(0.08, 0.4, 0.04), 0x3d5a80, q * 0.18, 1.55, 0.3, pBody, false); st.rotation.x = -0.5; const bk = mesh(new T.BoxGeometry(0.08, 0.5, 0.04), 0x3d5a80, q * 0.16, 1.35, -0.4, pBody, false); bk.rotation.x = 0.12; });
+}
 mesh(new T.TorusGeometry(0.3, 0.09, 6, 12), 0xd5523d, 0, 1.66, 0, pBody).rotation.x = Math.PI / 2;
 const arms = [-1, 1].map(s => { const a = new T.Group(); a.position.set(0.48 * s, 1.55, 0); pBody.add(a); mesh(new T.CylinderGeometry(0.1, 0.09, 0.7, 6).translate(0, -0.33, 0), 0x4f8a64, 0, 0, 0, a); mesh(sphereG, 0xf2c9a0, 0, -0.7, 0, a).scale.setScalar(0.11); a.rotation.z = 0.12 * s; return a; });
 const pPack = new T.Group(); pPack.position.set(0, 1.6, -0.4); pBody.add(pPack);
@@ -1451,6 +1609,9 @@ mesh(sphereG, 0x5a3a22, 0, 0.08, -0.06, pHead).scale.set(0.37, 0.3, 0.35);
 const pEyes = new T.Group(); pEyes.position.set(0, 0.02, 0); pHead.add(pEyes);
 eye(pEyes, 0.12, 0, 0.32, 0.9); eye(pEyes, -0.12, 0, 0.32, 0.9);
 mesh(sphereG, 0xf29a8a, 0.2, -0.08, 0.27, pHead, false).scale.set(0.06, 0.035, 0.03);
+mesh(sphereG, 0xe8ad86, 0, -0.04, 0.35, pHead, false).scale.set(0.055, 0.045, 0.05);
+[-1, 1].forEach(q => mesh(sphereG, 0xf2c9a0, q * 0.35, -0.02, 0, pHead).scale.set(0.06, 0.09, 0.06));
+[[-0.16, 0.19, 0.27, 0.13], [0, 0.21, 0.29, 0.12], [0.16, 0.19, 0.27, 0.13]].forEach(([x, y, z, sc]) => mesh(sphereG, 0x5a3a22, x, y, z, pHead, false).scale.set(sc, sc * 0.6, sc * 0.6));
 mesh(sphereG, 0xf29a8a, -0.2, -0.08, 0.27, pHead, false).scale.set(0.06, 0.035, 0.03);
 const pHat = new T.Group(); pHat.position.y = 0.27; pHead.add(pHat);
 mesh(new T.CylinderGeometry(0.62, 0.6, 0.06, 14), 0xe2762f, 0, 0, 0, pHat);
@@ -1501,6 +1662,40 @@ function makePoints(n, color, size, opacity, additive) {
   p.frustumCulled = false; scene.add(p); return p;
 }
 const fireflies = makePoints(70, 0xfff1a0, 0.32, 0, true);
+// daytime butterflies: two instanced wing meshes hinged on the body line, flapping as they wander
+const wingShape = new T.Shape(); wingShape.moveTo(0, -0.05); wingShape.bezierCurveTo(0.12, -0.32, 0.42, -0.26, 0.34, -0.02); wingShape.bezierCurveTo(0.42, 0.14, 0.26, 0.3, 0.1, 0.22); wingShape.bezierCurveTo(0.04, 0.18, 0, 0.1, 0, 0.05);
+const wingG = new T.ShapeGeometry(wingShape, 6).rotateX(-Math.PI / 2);
+const FLY_N = 36, flyMat = new T.MeshBasicMaterial({ side: T.DoubleSide, transparent: true, opacity: 0.95 });
+const flyW = [1, -1].map(q => { const g = wingG.clone(); if (q < 0) g.scale(-1, 1, 1); const im = new T.InstancedMesh(g, flyMat, FLY_N); im.frustumCulled = false; im.instanceMatrix.setUsage(T.DynamicDrawUsage); scene.add(im); return im; });
+const FLY_COL = [0xffb84a, 0xf47fa8, 0xfff1a0, 0x8fd0ea, 0xffffff, 0xc59aff];
+const flies = [];
+for (let i = 0; i < 600 && flies.length < FLY_N; i++) {
+  const x = R(-BOUND.x + 8, BOUND.x - 8), z = R(-BOUND.z + 8, BOUND.z - 8);
+  if (sdRect(x, z, MEADOW) < 0 || sdRect(x, z, FIELDS) < 0 || (campDist(x, z) < CAMP.r && campDist(x, z) > 6)) flies.push({ hx: x, hz: z, p: R(0, 100), s: R(0.7, 1.15) });
+}
+flies.forEach((f, i) => { const c = new T.Color(FLY_COL[i % FLY_COL.length]); flyW.forEach(im => im.setColorAt(i, c)); });
+flyW.forEach(im => { im.instanceColor.needsUpdate = true; im.count = flies.length; });
+// pink petals drifting down under the blossom trees
+const petals = makePoints(90, 0xf8c3d4, 0.28, 0.95, false);
+const petalSeed = Array.from({ length: 90 }, (_, i) => ({ t: blossoms.length ? blossoms[i % blossoms.length] : { x: 0, z: 0, s: 1 }, p: Math.random() * 10, a: Math.random() * 6.28 }));
+petals.visible = blossoms.length > 0;
+function updateFlutter(dt, time) {
+  const dayK = 1 - nightK(), show = dayK > 0.4 && S.rain <= 0;
+  flyW.forEach(im => { im.visible = show; });
+  if (show) {
+    flies.forEach((f, i) => {
+      const t = time * 0.35 + f.p, x = f.hx + Math.sin(t) * 4 + Math.sin(t * 2.3) * 1.5, z = f.hz + Math.cos(t * 0.8) * 4 + Math.sin(t * 1.7) * 1.2;
+      const y = Math.max(height(x, z), 0) + 1.1 + Math.sin(t * 3.1) * 0.5, yaw = Math.atan2(Math.cos(t) * 4 + Math.cos(t * 2.3) * 3.4, -Math.sin(t * 0.8) * 3.2 + Math.cos(t * 1.7) * 2) , flap = Math.sin(time * 18 + f.p * 7) * 0.9 + 0.25;
+      [1, -1].forEach((q, j) => { dummy.position.set(x, y, z); dummy.rotation.set(0, yaw, q * flap); dummy.scale.setScalar(f.s * 1.3); dummy.updateMatrix(); flyW[j].setMatrixAt(i, dummy.matrix); });
+    });
+    flyW.forEach(im => { im.instanceMatrix.needsUpdate = true; });
+  }
+  if (petals.visible) {
+    const pp = petals.geometry.attributes.position;
+    petalSeed.forEach((s, i) => { const top = 4.2 * s.t.s, k = ((time * 0.25 + s.p) % 1), x = s.t.x + Math.cos(s.a) * 2 + Math.sin(time * 0.8 + s.p) * 0.8 + k * 1.2, z = s.t.z + Math.sin(s.a) * 2 + Math.cos(time * 0.6 + s.p) * 0.6; pp.setXYZ(i, x, height(s.t.x, s.t.z) + top * (1 - k) + 0.1, z); });
+    pp.needsUpdate = true;
+  }
+}
 const ffSeed = Array.from({ length: 70 }, () => ({ x: R(-62, 30), z: R(-44, 30), h: R(0.6, 2.6), p: R(0, 6.28) }));
 const RAIN_N = 900;
 const rainGeo = new T.BufferGeometry(); const rainArr = new Float32Array(RAIN_N * 6); rainGeo.setAttribute('position', new T.BufferAttribute(rainArr, 3));
@@ -1716,12 +1911,49 @@ function renderSell() {
     row.appendChild(btns); list.appendChild(row);
   });
 }
+let fedT = 0;
+const fishHave = () => Object.keys(FISH).reduce((a, k) => a + (S.inv[k] || 0), 0);
+const haveFor = k => k === 'fish' ? fishHave() : (S.inv[k] || 0);
+const needEm = k => k === 'fish' ? '🐟' : ITEMS[k].em;
+const canCook = m => Object.entries(MEALS[m].need).every(([k, n]) => haveFor(k) >= n);
+function cook(m) {
+  if (!canCook(m)) { toast('You are missing some ingredients.'); return; }
+  Object.entries(MEALS[m].need).forEach(([k, n]) => {
+    if (k !== 'fish') { S.inv[k] -= n; return; }
+    Object.keys(FISH).sort((a, b) => FISH[a].v - FISH[b].v).forEach(f => { const t = Math.min(n, S.inv[f] || 0); if (t) { S.inv[f] -= t; n -= t; } });
+  });
+  S.inv[m] = (S.inv[m] || 0) + 1; SFX.play('ding'); gainXp(6, COOK.x, COOK.z); qev('cook');
+  floatText(COOK.x, 2.6, COOK.z, `+1 ${ITEMS[m].em}`); if (COOKFX.puff) COOKFX.puff = 1;
+  toast(`You cooked ${ITEMS[m].em} ${ITEMS[m].name.toLowerCase()}! Eat it from your bag or sell it.`); renderPouch(); renderCook(); save();
+}
+function eatMeal(m) {
+  if (!(S.inv[m] > 0)) return; const M_ = MEALS[m];
+  if (hp >= hpMax() && !M_.fed && stam >= stamMax() - 1) { toast("You're already full of energy. Save it for later!"); return; }
+  S.inv[m]--; hp = Math.min(hpMax(), hp + M_.heal); renderHp(); stam = Math.min(stamMax(), stam + (M_.stam || 0)); if (M_.fed) fedT = Math.max(fedT, M_.fed);
+  SFX.play('purr'); floatText(player.x, pg.position.y + 3, player.z, '😋');
+  toast(`Yum! ${ITEMS[m].em} ${M_.what}.`); renderPouch(); if (!$('cookWrap').hidden) renderCook(); save();
+}
+function renderCook() {
+  const list = $('cookList'); list.innerHTML = '';
+  $('cookFed').textContent = fedT > 0 ? `😋 Well fed for ${Math.ceil(fedT)}s more` : '';
+  Object.entries(MEALS).forEach(([m, d]) => {
+    const row = document.createElement('div'); row.className = 'shop-row'; const n = S.inv[m] || 0, ok = canCook(m);
+    const parts = Object.entries(d.need).map(([k, q]) => { const h = haveFor(k); return `<span class="ing${h >= q ? '' : ' miss'}">${needEm(k)} ${Math.min(h, q)}/${q}</span>`; }).join('');
+    row.innerHTML = `<div class="em">${ITEMS[m].em}</div><div class="info"><b>${ITEMS[m].name}</b><span class="ings">${parts}</span><small>${d.what} · sells for 🪙${d.v}${n ? ` · you have ${n}` : ''}</small></div>`;
+    const btns = document.createElement('div'); btns.className = 'btns';
+    const b = document.createElement('button'); b.className = 'btn' + (ok ? ' primary' : ''); b.id = 'cook-' + m; b.textContent = ok ? 'Cook' : 'Missing items'; b.disabled = !ok; b.onclick = () => cook(m); btns.appendChild(b);
+    if (n) { const e = document.createElement('button'); e.className = 'btn'; e.id = 'eat-' + m; e.textContent = 'Eat 😋'; e.onclick = () => eatMeal(m); btns.appendChild(e); }
+    row.appendChild(btns); list.appendChild(row);
+  });
+}
+const openCook = () => { renderCook(); $('cookWrap').hidden = false; };
 let bagTab = 'all', bagSel = null;
-const CAT = k => TOOLS[k] ? 'tools' : FISH[k] ? 'fish' : SEED2CROP[k] ? 'seeds' : MAT[k] ? 'mats' : SELL[k] ? 'drops' : 'food';
-const CATNAME = { tools: 'Tool', seeds: 'Seed', drops: 'Animal gift', food: 'Food', mats: 'Forge material' };
-const BAGTABS = [['all', 'All'], ['tools', '🔪 Tools'], ['food', '🥕 Food'], ['seeds', '🌱 Seeds'], ['drops', '🍀 Gifts'], ['fish', '🐟 Fish'], ['mats', '⚒️ Materials']];
+const CAT = k => TOOLS[k] ? 'tools' : FISH[k] ? 'fish' : MEALS[k] ? 'meal' : SEED2CROP[k] ? 'seeds' : MAT[k] ? 'mats' : SELL[k] ? 'drops' : 'food';
+const CATNAME = { fish: 'Fish', meal: 'Meal', tools: 'Tool', seeds: 'Seed', drops: 'Animal gift', food: 'Food', mats: 'Forge material' };
+const BAGTABS = [['all', 'All'], ['tools', '🔪 Tools'], ['food', '🥕 Food'], ['seeds', '🌱 Seeds'], ['drops', '🍀 Gifts'], ['fish', '🐟 Fish'], ['meal', '🍲 Meals'], ['mats', '⚒️ Materials']];
 function itemDesc(k) {
   if (TOOLS[k]) return TOOLS[k].desc;
+  if (MEALS[k]) return `A home-cooked meal. ${MEALS[k].what}. Sells for 🪙${MEALS[k].v} at the Merchant.`;
   const c = SEED2CROP[k]; if (c) { const cr = CROPS[c]; return `Plant it in your field. Grows in ${cr.t}s and gives ${cr.n} × ${cr.em}. ${cr.note}.`; }
   if (MAT[k]) return `A forge material from ${MAT[k].from}. Take it to the Blacksmith ⚒️ to upgrade your weapons.${TRADE_MATS.includes(k) ? ' The Trader also swaps food for it.' : ''}`;
   if (SELL[k]) return `An animal drop. Sells for 🪙${SELL[k]} each at the merchant.`;
@@ -1765,6 +1997,7 @@ function renderBag() {
     const btn = (id, label, fn, primary) => { const b = document.createElement('button'); b.className = 'btn' + (primary ? ' primary' : ''); b.id = id; b.textContent = label; b.onclick = fn; acts.appendChild(b); return b; };
     if (hotOk(k) && hi < 0) btn('bagToHot', 'Add to hotbar', () => { const e = S.hot.indexOf(null); if (e >= 0) { assignHot(k, e); } else { $('bagHot').classList.add('armed'); $('hotHint').textContent = 'Hotbar is full. Tap a slot to swap it.'; } }, true);
     if (FOODS.includes(k)) btn('bagHold', handKey() === k ? '✓ In hand' : 'Hold in hand', () => { let i = S.hot.indexOf(k); if (i < 0) { i = S.hand >= 0 && !TOOLS[S.hot[S.hand]] ? S.hand : S.hot.findIndex(x => !x); if (i < 0) i = 8; S.hot[i] = k; } S.hand = -2; holdSlot(i); });
+    if (MEALS[k] && n > 0) btn('bagEat', 'Eat 😋', () => eatMeal(k), true);
     if (SEED2CROP[k]) btn('bagPlant', S.seedSel === SEED2CROP[k] ? '✓ Planting next' : 'Plant this next', () => { S.seedSel = SEED2CROP[k]; renderPouch(); save(); });
     if (!TOOLS[k] && n > 0) {
       btn(`trash-${k}-1`, '🗑️ 1', () => { S.inv[k]--; toast(`Threw away 1 ${ITEMS[k].em}`); renderPouch(); save(); });
@@ -1892,7 +2125,7 @@ $('closeHome').onclick = () => { $('homeWrap').hidden = true; canvas.focus(); };
 $('closeSmith').onclick = () => { $('smithWrap').hidden = true; canvas.focus(); };
 syncWeapons();
 const openBag = () => { renderBag(); $('bagWrap').hidden = false; };
-const SHEETS = ['journalWrap', 'shopWrap', 'sellWrap', 'bagWrap', 'skillWrap', 'tradeWrap', 'questWrap', 'mapWrap', 'homeWrap', 'smithWrap'];
+const SHEETS = ['cookWrap', 'journalWrap', 'shopWrap', 'sellWrap', 'bagWrap', 'skillWrap', 'tradeWrap', 'questWrap', 'mapWrap', 'homeWrap', 'smithWrap'];
 const anySheet = () => SHEETS.some(id => !$(id).hidden) || !$('introWrap').hidden || !$('titleWrap').hidden || !$('menuWrap').hidden;
 $('journalBtn').onclick = () => { renderJournal(); $('journalWrap').hidden = false; };
 $('resetBtn').onclick = () => {
@@ -1932,6 +2165,7 @@ const openSkills = () => { renderSkills(); $('skillWrap').hidden = false; };
 $('lvlChip').onclick = openSkills; $('skillBtn').onclick = openSkills;
 $('questChip').onclick = openQuests;
 $('closeShop').onclick = () => { $('shopWrap').hidden = true; canvas.focus(); };
+$('closeCook').onclick = () => { $('cookWrap').hidden = true; canvas.focus(); };
 const hadSave = (() => { try { return !!localStorage.getItem('wildwood3d-v1'); } catch (e) { return false; } })();
 $('playBtn').textContent = hadSave ? 'Continue' : 'Play';
 function startGame() { if (window.__refund) { const rf = window.__refund; window.__refund = 0; setTimeout(() => toast(`Decor and enemy drops were removed from the game. You got 🪙${rf} back for yours.`), 2600); }
@@ -2061,13 +2295,48 @@ function makePet(f, x, z) {
   const parts = buildCreature(f.sp, f.golden); scene.add(parts.g);
   const zz = document.createElement('div'); zz.className = 'anchor'; zz.innerHTML = '<div class="zz">z z</div>'; zz.hidden = true; anchors.appendChild(zz);
   const need = document.createElement('div'); need.className = 'anchor'; need.innerHTML = '<div class="zz need">💔</div>'; need.hidden = true; anchors.appendChild(need);
-  const tagA = document.createElement('div'); tagA.className = 'anchor'; tagA.innerHTML = '<button class="pettag">✋ Pet</button>'; tagA.hidden = true; anchors.appendChild(tagA);
+  const tagA = document.createElement('div'); tagA.className = 'anchor'; tagA.innerHTML = '<div class="tagrow"><button class="pettag">✋ Pet</button><button class="pettag walk">🐾 Walk with me</button></div>'; tagA.hidden = true; anchors.appendChild(tagA);
   if (f.spirit) spiritify(parts);
   careOf(f);
   const p = { ...f, f, parts, x, z, tx: null, tz: null, wait: R(0, 3), giftIn: R(15, 35), yaw: R(0, 6.28), seed: R(0, 100), zz, need, tagA, tagTxt: '', petCd: 0, happy: 0 };
-  tagA.firstChild.onclick = e => { e.stopPropagation(); petClick(p); };
+  p.tagBtn = tagA.querySelector('.pettag'); p.walkBtn = tagA.querySelector('.walk');
+  p.tagBtn.onclick = e => { e.stopPropagation(); petClick(p); };
+  p.walkBtn.onclick = e => { e.stopPropagation(); setBuddy(p); };
   dressPet(p);
   pets.push(p); return p;
+}
+function sendHome(p) { p.f.walk = 0; const s = penSpot(p.pen); p.x = s.x; p.z = s.z; p.tx = null; }
+function setBuddy(p) {
+  const nm = SPECIES[p.sp].name.toLowerCase();
+  if (p.f.walk) { sendHome(p); toast(`Your ${nm} trotted back to its pen.`); }
+  else {
+    pets.forEach(q => { if (q.f.walk) sendHome(q); });
+    p.f.walk = 1; p.forageT = R(20, 35); p.happy = 1.2;
+    toast(`Your ${nm} is coming along! 🐾 It sniffs out treats and warns you about wolves.`);
+  }
+  p.tagTxt = ''; SFX.play('pop'); save();
+}
+// a buddy trots behind the player, digs up treats outside the farm and warns about nearby wolves
+function buddyStep(p, dt) {
+  const nm = SPECIES[p.sp].name.toLowerCase(), sy = Math.sin(player.yaw), cy = Math.cos(player.yaw);
+  const fx = player.x - sy * 2.2 + cy * 1.1, fz = player.z - cy * 2.2 - sy * 1.1;
+  const dx = fx - p.x, dz = fz - p.z; let d = Math.hypot(dx, dz), moving = false;
+  if (d > 30) { p.x = fx; p.z = fz; d = 0; }
+  if (d > 0.6) { const v = Math.min(d * 2.2, 10.5); p.x += dx / d * v * dt; p.z += dz / d * v * dt; p.yaw = angLerp(p.yaw, Math.atan2(dx, dz), Math.min(1, dt * 8)); moving = true; }
+  else p.yaw = angLerp(p.yaw, player.yaw, Math.min(1, dt * 3));
+  p.f.care = Math.min(100, careOf(p.f) + dt * 0.4);
+  if (started && player.moving && campDist(player.x, player.z) > CAMP.r) p.forageT = (p.forageT == null ? 30 : p.forageT) - dt;
+  if (p.forageT <= 0) {
+    p.forageT = R(35, 55); const opts = p.spirit ? ['dew', 'moss'] : BUDDY_FIND[p.sp] || ['berry', 'clover'], it = opts[Math.random() < 0.7 ? 0 : 1];
+    if (add(it, 1)) { floatText(p.x, 2.2, p.z, `+1 ${ITEMS[it].em}`); toast(`Your ${nm} dug up ${ITEMS[it].em} ${ITEMS[it].name.toLowerCase()}!`); p.happy = 1.2; }
+  }
+  if (started && clock > (p.alertAt || 0)) {
+    const w = activeWolves().find(w => Math.hypot(w.x - player.x, w.z - player.z) < 22);
+    if (w) { p.alertAt = clock + 30; p.happy = 0.8; floatText(p.x, 2.4, p.z, '❗'); toast(`Your ${nm} senses danger! ${w.boar ? '🐗' : '🐺'} Something is close by.`); }
+  }
+  p.parts.g.position.set(p.x, Math.max(height(p.x, p.z), WATER_Y - 0.2) + 0.08, p.z); p.parts.g.rotation.y = p.yaw;
+  if (p.happy > 0) { p.happy -= dt; p.parts.g.position.y += Math.abs(Math.sin(p.happy * 9)) * 0.35; }
+  return moving;
 }
 S.penV = 2;
 S.friends.forEach(f => { f.pen = assignPen(f, true); });
@@ -2496,6 +2765,7 @@ function updateWolves(dt, time) {
 function nearestWild(maxD = 3.6) { let best = null, bd = maxD; Object.values(wild).forEach(a => { if (a.leaving) return; const d = Math.hypot(a.x - player.x, a.z - player.z); if (d < bd) { bd = d; best = a; } }); return best; }
 function nearestSource() { let best = null, bd = 3.2; SOURCES.forEach(s => { const d = Math.hypot(s.x - player.x, s.z - player.z) - (s.item === 'acorn' ? 1.2 : 0); if (d < bd) { bd = d; best = s; } }); return best; }
 const nearRest = () => Math.hypot(player.x - REST.x, player.z - REST.z) < 2.6;
+const nearCook = () => Math.hypot(player.x - COOK.x, player.z - COOK.z) < 3.4;
 const nearBoard = () => Math.hypot(player.x - QBOARD.x, player.z - QBOARD.z) < 2.8;
 const nearTrade = () => Math.hypot(player.x - TRADE.x, player.z - TRADE.z) < 4.6;
 const nearMerch = () => Math.hypot(player.x - MERCH.x, player.z - MERCH.z) < 4.6;
@@ -2605,6 +2875,7 @@ function contextAction() {
   }
   const s = nearestSource();
   if (s) { const wait = s.ready > clock; return { label: wait ? 'Regrowing' : `Pick ${ITEMS[s.item].em}`, sub: wait ? `${s.label} · ${Math.ceil(s.ready - clock)}s` : s.label, fn: () => forage(s), at: [s.x, height(s.x, s.z) + (s.item === 'acorn' ? 2.2 : 2.2), s.z] }; }
+  if (nearCook()) return { label: 'Cook 🍲', sub: Object.keys(MEALS).some(canCook) ? 'You can cook something!' : 'Cooking pot · turn food into meals', fn: openCook, at: [COOK.x, 3.2, COOK.z] };
   if (nearBoard()) { const r = S.q && S.q.list.some(q => q.done && !q.claimed); return { label: 'Quests', sub: r ? 'Reward ready to claim!' : 'Daily quest board', fn: openQuests, at: [QBOARD.x, 3.4, QBOARD.z] }; }
   if (nearSmith()) return { label: 'Forge', sub: 'Blacksmith · weapon upgrades', fn: openSmith, at: [SMITH.x, 4.4, SMITH.z] };
   if (nearHome()) return { label: 'Home', sub: `${HOUSE[S.home].em} ${HOUSE[S.home].name}${S.home < 3 ? ' · upgrade 🪙' + HOUSE[S.home + 1].cost : ''}`, fn: openHome, at: [HOME.x, [3.6, 5.2, 6.4, 8.6][S.home], HOME.z] };
@@ -2815,6 +3086,7 @@ const tmpV = new T.Vector3();
 function angLerp(a, b, k) { let d = ((b - a + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI; return a + d * k; }
 function update(dt, time) {
   clock += dt; S.t = (S.t + dt / CYCLE) % 1; windU.value = time;
+  windAmp.value += ((S.rain > 0 || S.storm ? 2.3 : 1) - windAmp.value) * Math.min(1, dt * 0.6);
   S.fire = nightK() > 0.15 ? 1 : 0;
   if (S.rain > 0) { S.rain -= dt; if (S.rain <= 0) { S.rain = 0; S.storm = 0; toast('The rain stops. Everything smells fresh.'); } }
   if (S.fog > 0) { S.fog -= dt; if (S.fog <= 0) { S.fog = 0; toast('The fog lifts. The ghosts fade away.'); } }
@@ -2837,13 +3109,14 @@ function update(dt, time) {
     if (d < 0.3) player.tx = null; else { mx = dx / d; mz = dz / d; }
   }
   const len = Math.hypot(mx, mz);
+  if (fedT > 0) { fedT -= dt; if (fedT <= 0) toast('The well-fed feeling wore off.'); }
   player.moving = len > 0;
   const wantSprint = sprintHeld && len > 0 && !session && faintT <= 0;
-  if (wantSprint && stam > 0 && !(sprinting === false && stam < 12)) { if (crouch) setCrouch(false); sprinting = true; stam = Math.max(0, stam - 24 * dt); stamWait = 0.9; if (stam <= 0) { sprinting = false; toast('Out of breath! Let your stamina refill.'); } }
+  if (wantSprint && stam > 0 && !(sprinting === false && stam < 12)) { if (crouch) setCrouch(false); sprinting = true; stam = Math.max(0, stam - 24 * (fedT > 0 ? 0.5 : 1) * dt); stamWait = 0.9; if (stam <= 0) { sprinting = false; toast('Out of breath! Let your stamina refill.'); } }
   else { sprinting = false; stamWait -= dt; if (stamWait <= 0) stam = Math.min(stamMax(), stam + 20 * (1 + sk('stam') * 0.12) * dt); }
   if (len) {
     const inWater = creekDist(player.x, player.z) < 2.6;
-    const spd = (crouch ? 2.8 : carrying ? 4.8 : 7) * (sprinting ? (carrying ? 1.4 : 1.6) : 1) * (1 + sk('speed') * 0.06) * (inWater ? 0.55 : 1) * dt;
+    const spd = (crouch ? 2.8 : carrying ? 4.8 : 7) * (sprinting ? (carrying ? 1.4 : 1.6) : 1) * (1 + sk('speed') * 0.06) * (fedT > 0 ? 1.08 : 1) * (inWater ? 0.55 : 1) * dt;
     player.x += mx / len * spd; player.z += mz / len * spd;
     player.yaw = angLerp(player.yaw, Math.atan2(mx, mz), Math.min(1, dt * 12));
     player.walk += dt * (crouch ? 7 : sprinting ? 14 : 11);
@@ -2940,14 +3213,15 @@ function update(dt, time) {
     else if (session.trust <= 0) endSession(false);
   }
 
-  updateWolves(dt, time); updateDefences(dt); updateFishing(dt, time); updateGlows();
+  updateWolves(dt, time); updateDefences(dt); updateFishing(dt, time); updateGlows(); updateCook(dt, time); updateFlutter(dt, time);
   updateCrops(dt, time);
 
   $('app').dataset.sheet = anySheet() ? '1' : '';
   // --- pets (live in their barn pens)
   const night = phase() === 'night';
   pets.forEach(p => {
-    let moving = false, sleeping = false; const P = PENS[p.pen] || PENS[0], lvl = (S.pens[p.pen] || S.pens[0]).l;
+    let moving = false, sleeping = false, lonely = false; const P = PENS[p.pen] || PENS[0], lvl = (S.pens[p.pen] || S.pens[0]).l;
+    if (p.f.walk) { moving = buddyStep(p, dt); animateCreature(p, p.sp, dt, time, moving, false); } else {
     p.wait -= dt;
     if (p.wait <= 0) { p.wait = R(3, 7); if ((!night || Math.random() < 0.2) && Math.random() < 0.7) { const s2 = penSpot(p.pen); p.tx = s2.x; p.tz = s2.z; } }
     if (p.tx != null) {
@@ -2956,7 +3230,7 @@ function update(dt, time) {
     } else if (night) sleeping = true;
     else if (Math.hypot(player.x - p.x, player.z - p.z) < 5) p.yaw = angLerp(p.yaw, Math.atan2(player.x - p.x, player.z - p.z), Math.min(1, dt * 3));
     p.x = clamp(p.x, P.x0 + 0.7, P.x1 - 0.7); p.z = clamp(p.z, P.z0 + 0.8, P.z1 - 0.8);
-    const care = p.f.care = Math.max(0, careOf(p.f) - dt * CARE_DRAIN * (sleeping ? 0.5 : 1)), lonely = care < CARE_LOW;
+    const care = p.f.care = Math.max(0, careOf(p.f) - dt * CARE_DRAIN * (sleeping ? 0.5 : 1)); lonely = care < CARE_LOW;
     if (lonely && !p.lonelyTold && started) { p.lonelyTold = true; toast(`Your ${SPECIES[p.sp].name.toLowerCase()} feels lonely 😢 Give it a pet in the barn or it stops leaving gifts.`); }
     if (lonely) p.f.bond = Math.max(0, (p.f.bond || 0) - dt * 0.02);
     else p.giftIn -= dt * (1 + 0.4 * (lvl - 1)) * (1 + 0.1 * hearts(p.f)) * (care >= 70 ? 1.3 : 1);
@@ -2964,6 +3238,7 @@ function update(dt, time) {
     p.parts.g.position.set(p.x, 0.16, p.z); p.parts.g.rotation.y = p.yaw;
     if (p.happy > 0) { p.happy -= dt; p.parts.g.position.y += Math.abs(Math.sin(p.happy * 9)) * 0.35; p.yaw = angLerp(p.yaw, Math.atan2(player.x - p.x, player.z - p.z), Math.min(1, dt * 8)); }
     animateCreature(p, p.sp, dt, time, moving, sleeping);
+    }
     p.zz.hidden = !sleeping; p.need.hidden = !lonely || sleeping;
     if (lonely && !sleeping) place(p.need, p.x, p.parts.g.position.y + (p.sp === 'fawn' ? 2.8 : 2), p.z);
     const showTag = started && !sleeping && !session && !carrying && Math.hypot(player.x - p.x, player.z - p.z) < PET_R && $('app').dataset.sheet !== '1';
@@ -2971,7 +3246,7 @@ function update(dt, time) {
     if (showTag) {
       const cu = cuddlesToday(p.f), hf = heldFood(), done = cu >= CUDDLES || p.petCd > clock;
       const txt = cu >= CUDDLES ? '💗 All cuddled' : p.petCd > clock ? '💗 Content' : hf === SPECIES[p.sp].food ? `Feed ${ITEMS[hf].em}` : lonely ? '💔 Pet' : '✋ Pet';
-      if (p.tagTxt !== txt) { p.tagTxt = txt; p.tagA.firstChild.textContent = txt; p.tagA.firstChild.classList.toggle('done', done); }
+      if (p.tagTxt !== txt) { p.tagTxt = txt; p.tagBtn.textContent = txt; p.tagBtn.classList.toggle('done', done); p.walkBtn.textContent = p.f.walk ? '🏡 Send home' : '🐾 Walk with me'; }
       place(p.tagA, p.x, p.parts.g.position.y + (p.sp === 'fawn' ? 3 : p.sp === 'owl' ? 2.3 : 2), p.z); p.need.hidden = true;
     }
     if (sleeping) place(p.zz, p.x, p.parts.g.position.y + (p.sp === 'fawn' ? 2.8 : 2), p.z);

@@ -12,6 +12,8 @@ A cozy 3D browser game. Befriend forest animals, grow your farm, and survive the
 - **Forge** stronger knives and slingshots at the Blacksmith from enemy drops.
 - **Fish** the creek with a rod from the Shop. Five fish bite at different times and weather, from minnows to the rare koi.
 - **Check the morning report** after a raid night to see what you fought off and collect a dawn bonus.
+- **Cook** crops and fish into meals at the cooking pot by the well. Meals heal, refill stamina and sell well.
+- **Take a buddy** along: any barn animal can walk with you, dig up treats and warn you about wolves.
 
 ## Controls
 | Action | Keys |
