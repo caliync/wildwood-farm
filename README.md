@@ -1,16 +1,16 @@
-# 🌿 Wildwood Farm
+# Wildwood Farm
 
-A cozy 3D browser game. Befriend forest animals, grow your farm, and survive the night.
+My cozy 3D browser game. Befriend forest animals, grow your farm, and survive the night.
 
 **▶ Play it:** https://caliync.github.io/wildwood-farm/
 **🌲 Game website:** https://caliync.github.io/wildwood-site/
 
 ## What you do
-- **Befriend** bunnies, squirrels, frogs, fawns, owls and the Spirit Fawn by offering the food they love and staying still while their trust fills.
+- **Befriend** bunnies, squirrels, frogs, fawns, owls and the Spirit Fawn by offering the food they love. Then stay still while their trust fills.
 - **Grow** carrots, berries, mushrooms and pumpkins. Rain makes crops grow twice as fast.
 - **Defend** your farm from night-time wolf raids with gates, watchtowers and spike traps.
 - **Forge** stronger knives and slingshots at the Blacksmith from enemy drops.
-- **Fish** the creek with a rod from the Shop. Five fish bite at different times and weather, from minnows to the rare koi.
+- **Fish** the creek with a rod from the Shop. There are five fish, from minnows up to the rare koi, and each one bites at its own time of day and weather.
 - **Check the morning report** after a raid night to see what you fought off and collect a dawn bonus.
 - **Cook** crops and fish into meals at the cooking pot by the well. Meals heal, refill stamina and sell well.
 - **Take a buddy** along: any barn animal can walk with you, dig up treats and warn you about wolves.
@@ -28,6 +28,6 @@ A cozy 3D browser game. Befriend forest animals, grow your farm, and survive the
 Works with keyboard, mouse or touch. Progress saves in your browser.
 
 ## Tech
-A single `index.html` built with [three.js](https://threejs.org/) (r128, loaded from a CDN). No build step: open the file or serve the folder.
+Everything is in one `index.html` built with [three.js](https://threejs.org/) r128 from a CDN. There's no build step, so you can open the file or serve the folder.
 
 Made by Alli.
