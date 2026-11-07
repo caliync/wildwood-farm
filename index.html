@@ -1066,6 +1066,20 @@ function instanced(geo, mat, list, place, colorFn) {
   return { parts, set castShadow(v) { parts.forEach(m => { m.castShadow = v; }); } };
 }
 const col = (h, s, l) => new T.Color().setHSL(h, s, l);
+// Bake a tree's layers (cones, canopy blobs, bark rings) into one geometry so each tree type is one
+// instanced draw per tile instead of three or four. `k` shades a part lighter or darker.
+function bakeParts(parts, shade) {
+  const out = [], o = new T.Object3D();
+  parts.forEach(([g, pos, sc, rot, k]) => {
+    const c = (g.index ? g.toNonIndexed() : g.clone());
+    o.position.set(...pos); o.scale.set(...(Array.isArray(sc) ? sc : [sc, sc, sc])); o.rotation.set(...(rot || [0, 0, 0])); o.updateMatrix(); c.applyMatrix4(o.matrix);
+    if (shade) { const n = c.attributes.position.count, a = new Float32Array(n * 3).fill(k == null ? 1 : k); c.setAttribute('color', new T.BufferAttribute(a, 3)); }
+    out.push(c);
+  });
+  const n = out.reduce((a, g) => a + g.attributes.position.count, 0), geo = new T.BufferGeometry(), keys = ['position', 'normal', 'uv'].concat(shade ? ['color'] : []);
+  keys.forEach(key => { const sz = out[0].attributes[key].itemSize, arr = new Float32Array(n * sz); let off = 0; out.forEach(g => { arr.set(g.attributes[key].array, off); off += g.attributes[key].array.length; }); geo.setAttribute(key, new T.BufferAttribute(arr, sz)); });
+  out.forEach(g => g.dispose()); return geo;
+}
 trees.filter(t => t.kind === 'round').forEach((t, i) => { if (i % 5 === 0) t.kind = 'blossom'; else if (i % 5 === 2 || i % 5 === 4) t.kind = 'birch'; });
 const pines = trees.filter(t => t.kind === 'pine'), oaks = trees.filter(t => t.kind === 'oak'), rounds = trees.filter(t => t.kind === 'round' || t.kind === 'blossom'), birches = trees.filter(t => t.kind === 'birch');
 const trunkG = flat(new T.CylinderGeometry(0.28, 0.4, 1.8, 6).translate(0, 0.9, 0));
@@ -1073,22 +1087,22 @@ instanced(trunkG, M(0x7a5232), trees.filter(t => t.kind !== 'birch'), (d, t) => 
 const coneG = [flat(new T.ConeGeometry(1.9, 2.6, 7).translate(0, 2.6, 0)), flat(new T.ConeGeometry(1.5, 2.2, 7).translate(0, 3.9, 0)), flat(new T.ConeGeometry(1.0, 1.8, 7).translate(0, 5.0, 0))];
 const pineCol = t => col(0.38 + Math.abs(Math.sin(t.x * 1.7)) * 0.05, 0.34, 0.24 + Math.abs(Math.sin(t.z)) * 0.08);
 const pineMat = windMat(0.022, 'max(position.y - 1.2, 0.0)'), canopyMat = windMat(0.05, '1.0');
-coneG.forEach(g => instanced(g, pineMat, pines, (d, t) => { d.position.set(t.x, height(t.x, t.z), t.z); d.scale.setScalar(t.s); d.rotation.set(0, t.x, 0); }, pineCol));
+instanced(bakeParts(coneG.map(g => [g, [0, 0, 0], 1])), pineMat, pines, (d, t) => { d.position.set(t.x, height(t.x, t.z), t.z); d.scale.setScalar(t.s); d.rotation.set(0, t.x, 0); }, pineCol);
 const blobG = flat(new T.IcosahedronGeometry(1, 1));
 const oakCol = t => t.kind === 'blossom' ? col(0.94 + Math.abs(Math.sin(t.x)) * 0.03, 0.78, 0.7 + Math.abs(Math.cos(t.z)) * 0.06) : col(0.22 + Math.abs(Math.sin(t.x)) * 0.08, 0.4, 0.31 + Math.abs(Math.cos(t.z)) * 0.08);
 const leafy = oaks.concat(rounds);
-instanced(blobG, canopyMat, leafy, (d, t) => { d.position.set(t.x, height(t.x, t.z) + 3.3 * t.s, t.z); d.scale.set(2.3 * t.s, 1.9 * t.s, 2.3 * t.s); d.rotation.set(0, t.z, 0); }, oakCol);
-instanced(blobG, canopyMat, leafy, (d, t) => { d.position.set(t.x + 1.1 * t.s, height(t.x, t.z) + 2.7 * t.s, t.z + 0.4 * t.s); d.scale.setScalar(1.35 * t.s); d.rotation.set(t.x, 0, 0); }, t => oakCol(t).offsetHSL(0, 0, 0.04));
-instanced(blobG, canopyMat, leafy, (d, t) => { d.position.set(t.x - 0.9 * t.s, height(t.x, t.z) + 3.0 * t.s, t.z - 0.8 * t.s); d.scale.setScalar(1.25 * t.s); d.rotation.set(0, t.x, 0); }, t => oakCol(t).offsetHSL(0, 0, -0.03));
+canopyMat.vertexColors = true;
+const oakCanopyG = bakeParts([[blobG, [0, 3.3, 0], [2.3, 1.9, 2.3], [0, 0.4, 0], 1], [blobG, [1.1, 2.7, 0.4], 1.35, [0.7, 0, 0], 1.1], [blobG, [-0.9, 3.0, -0.8], 1.25, [0, 1.3, 0], 0.93]], true);
+instanced(oakCanopyG, canopyMat, leafy, (d, t) => { d.position.set(t.x, height(t.x, t.z), t.z); d.scale.setScalar(t.s); d.rotation.set(0, t.z, 0); }, oakCol);
 
 // birches: tall white trunks with dark bark marks and light, airy canopies
 const birchTrunkG = flat(new T.CylinderGeometry(0.17, 0.24, 4.2, 7).translate(0, 2.1, 0));
 instanced(birchTrunkG, M(0xece6da), birches, (d, t) => { d.position.set(t.x, height(t.x, t.z) - 0.1, t.z); d.scale.setScalar(t.s); d.rotation.set(0, t.x, 0); });
 const barkG = flat(new T.CylinderGeometry(0.205, 0.205, 0.1, 7));
-[0.9, 1.7, 2.6, 3.3].forEach((h, j) => instanced(barkG, M(0x3a3430), birches, (d, t) => { d.position.set(t.x, height(t.x, t.z) + h * t.s, t.z); d.scale.set(t.s * (1.1 - h * 0.07), t.s * (j % 2 ? 0.7 : 1), t.s * (1.1 - h * 0.07)); d.rotation.set(0, t.z + j, 0); }));
+instanced(bakeParts([0.9, 1.7, 2.6, 3.3].map((h, j) => [barkG, [0, h, 0], [1.1 - h * 0.07, j % 2 ? 0.7 : 1, 1.1 - h * 0.07], [0, j, 0]])), M(0x3a3430), birches, (d, t) => { d.position.set(t.x, height(t.x, t.z), t.z); d.scale.setScalar(t.s); d.rotation.set(0, t.z, 0); });
 const birchCol = t => col(0.17 + Math.abs(Math.sin(t.x * 2)) * 0.05, 0.55, 0.47 + Math.abs(Math.cos(t.z)) * 0.07);
-instanced(blobG, canopyMat, birches, (d, t) => { d.position.set(t.x, height(t.x, t.z) + 4.6 * t.s, t.z); d.scale.set(1.5 * t.s, 2.1 * t.s, 1.5 * t.s); d.rotation.set(0, t.z, 0); }, birchCol);
-instanced(blobG, canopyMat, birches, (d, t) => { d.position.set(t.x + 0.7 * t.s, height(t.x, t.z) + 3.7 * t.s, t.z - 0.3 * t.s); d.scale.setScalar(1.0 * t.s); d.rotation.set(t.x, 0, 0); }, t => birchCol(t).offsetHSL(0, 0, 0.05));
+const birchCanopyG = bakeParts([[blobG, [0, 4.6, 0], [1.5, 2.1, 1.5], [0, 0.4, 0], 1], [blobG, [0.7, 3.7, -0.3], 1.0, [0.9, 0, 0], 1.12]], true);
+instanced(birchCanopyG, canopyMat, birches, (d, t) => { d.position.set(t.x, height(t.x, t.z), t.z); d.scale.setScalar(t.s); d.rotation.set(0, t.z, 0); }, birchCol);
 const blossoms = trees.filter(t => t.kind === 'blossom');
 const bushes = [];
 for (let i = 0; i < 1500 && bushes.length < 280; i++) {
@@ -1097,8 +1111,8 @@ for (let i = 0; i < 1500 && bushes.length < 280; i++) {
   bushes.push({ x, z, s: rr(0.55, 1.05) });
 }
 const bushCol = b => col(0.24 + Math.abs(Math.sin(b.x * 2.3)) * 0.07, 0.38, 0.27 + Math.abs(Math.cos(b.z * 1.9)) * 0.08);
-instanced(blobG, M(white), bushes, (d, b) => { d.position.set(b.x, height(b.x, b.z) + 0.35 * b.s, b.z); d.scale.set(1.15 * b.s, 0.8 * b.s, 1.05 * b.s); d.rotation.set(0, b.x, 0); }, bushCol);
-instanced(blobG, M(white), bushes, (d, b) => { d.position.set(b.x + 0.55 * b.s, height(b.x, b.z) + 0.3 * b.s, b.z + 0.3 * b.s); d.scale.setScalar(0.62 * b.s); d.rotation.set(b.z, 0, 0); }, b => bushCol(b).offsetHSL(0.01, 0, 0.05));
+const bushG = bakeParts([[blobG, [0, 0.35, 0], [1.15, 0.8, 1.05], [0, 0.5, 0], 1], [blobG, [0.55, 0.3, 0.3], 0.62, [0.8, 0, 0], 1.1]], true);
+instanced(bushG, M(white, { vertexColors: true }), bushes, (d, b) => { d.position.set(b.x, height(b.x, b.z), b.z); d.scale.setScalar(b.s); d.rotation.set(0, b.x, 0); }, bushCol);
 const rocks = [];
 for (let i = 0; i < 800 && rocks.length < 90; i++) {
   const x = rr(-BOUND.x + 2, BOUND.x - 2), z = rr(-BOUND.z + 2, BOUND.z - 2); const cd = creekDist(x, z);
@@ -1369,8 +1383,8 @@ function makeHome(lv) {
 }
 const homeR = lv => [2.2, 3.0, 3.6, 4.4][lv];
 function buildHome(popIn) {
-  if (homeObj) scene.remove(homeObj);
-  homeObj = makeHome(S.home); scene.add(homeObj);
+  if (homeObj) { scene.remove(homeObj); disposeMerged(homeObj); }
+  homeObj = makeHome(S.home); scene.add(homeObj); mergeByMaterial(homeObj);
   obstacles.push({ x: HOME.x, z: HOME.z, r: homeR(S.home) });
   if (popIn) { homeObj.scale.setScalar(0.01); homeObj.userData.pop = 0; }
 }
@@ -2212,7 +2226,7 @@ function penBlock(a) {
 const penObjs = [];
 const postG = new T.BoxGeometry(0.18, 1.2, 0.18);
 function buildPen(i) {
-  if (penObjs[i]) scene.remove(penObjs[i]);
+  if (penObjs[i]) { scene.remove(penObjs[i]); disposeMerged(penObjs[i]); }
   const p = PENS[i], st = S.pens[i], g = new T.Group(); scene.add(g); penObjs[i] = g;
   const fc = !st.u ? 0x7d6a55 : st.l >= 5 ? 0xf2c14e : st.l >= 3 ? 0xf3ede0 : st.l === 2 ? 0xb07a45 : 0x8a5b34;
   const rail = (x0, z0, x1, z1) => {
@@ -2235,6 +2249,7 @@ function buildPen(i) {
   const sign = mesh(new T.PlaneGeometry(1.4, 0.52), new T.MeshBasicMaterial({ map: new T.CanvasTexture(cv) }), p.gx, 1.55, p.gz - p.side * 0.08, g, false);
   if (p.side > 0) sign.rotation.y = Math.PI;
   mesh(new T.BoxGeometry(0.12, 1.7, 0.12), fc, p.gx, 0.85, p.gz, g);
+  mergeByMaterial(g);
 }
 PENS.forEach((_, i) => buildPen(i));
 function nearestPen() { let best = null, bd = 2.4; PENS.forEach((p, i) => { const d = Math.hypot(p.gx - player.x, p.az - player.z); if (d < bd) { bd = d; best = i; } }); return best; }
@@ -3523,12 +3538,50 @@ function resize() {
   if (W < 600) cam.tDist = Math.max(cam.tDist, 22);
 }
 addEventListener('resize', resize);
+// Merge props that never change and share a material into one mesh per map tile, so the farm
+// costs a few dozen draw calls instead of hundreds. Tiles keep off-screen props culled.
+function mergeByMaterial(root, tile, direct, keep) {
+  root.updateMatrixWorld(true);
+  const inv = new T.Matrix4().copy(root.matrixWorld).invert(), wp = new T.Vector3(), rel = new T.Matrix4();
+  const skip = new Set(window.__roofs || []), buckets = new Map();
+  root.traverse(o => {
+    if (!o.isMesh || o.isInstancedMesh || skip.has(o) || (keep && keep.includes(o)) || !o.visible || Array.isArray(o.material) || o.material.transparent) return;
+    if (Object.keys(o.userData).length || (direct && o.parent !== root)) return; // tagged meshes animate; joints keep their own parts
+    for (let q = o.parent; q && q !== root; q = q.parent) if (!q.visible) return;
+    const g = o.geometry; if (!g.attributes.position || !g.attributes.normal) return;
+    o.getWorldPosition(wp);
+    const k = o.material.uuid + '|' + o.castShadow + '|' + (tile ? Math.floor(wp.x / tile) + ',' + Math.floor(wp.z / tile) : '') + '|' + !!g.attributes.uv;
+    if (!buckets.has(k)) buckets.set(k, []); buckets.get(k).push(o);
+  });
+  let removed = 0;
+  buckets.forEach(list => {
+    if (list.length < 2) return;
+    const hasUv = !!list[0].geometry.attributes.uv, parts = [];
+    let n = 0;
+    list.forEach(o => { const g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); rel.multiplyMatrices(inv, o.matrixWorld); g.applyMatrix4(rel); parts.push(g); n += g.attributes.position.count; });
+    const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3), uv = hasUv ? new Float32Array(n * 2) : null; let off = 0;
+    parts.forEach(g => { pos.set(g.attributes.position.array, off * 3); nor.set(g.attributes.normal.array, off * 3); if (uv) uv.set(g.attributes.uv.array, off * 2); off += g.attributes.position.count; g.dispose(); });
+    const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(pos, 3)); geo.setAttribute('normal', new T.BufferAttribute(nor, 3)); if (uv) geo.setAttribute('uv', new T.BufferAttribute(uv, 2));
+    geo.computeBoundingSphere();
+    const m = new T.Mesh(geo, list[0].material); m.castShadow = list[0].castShadow; m.receiveShadow = true; m.userData.merged = true; root.add(m);
+    list.forEach(o => { o.parent.remove(o); removed++; });
+  });
+  return removed;
+}
+// free the merged copies when a pen or the house is rebuilt
+function disposeMerged(root) { root.traverse(o => { if (o.userData && o.userData.merged) o.geometry.dispose(); }); }
+mergeByMaterial(staticGroup, CHUNK);
+// the farmer: merge inside each joint so walking, waving and blinking still work
+[pBody, pHead, pHat, pPack, ...legs, ...arms].forEach(j => mergeByMaterial(j, 0, true));
 staticGroup.traverse(o => { o.matrixAutoUpdate = false; o.updateMatrix(); });
 renderer.compile(scene, camera); // build every shader now instead of stalling the first time each one is seen
-let last = performance.now(), elapsed = 0;
+let last = performance.now(), elapsed = 0, lastDraw = 0;
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now; elapsed += dt;
   const paused = !started || anySheet();
+  // a menu sheet covers most of the screen: redraw the world behind it 10 times a second, not 60
+  if (started && SHEETS.some(id => !$(id).hidden) && now - lastDraw < 100) { hud(dt); requestAnimationFrame(frame); return; }
+  lastDraw = now;
   if (!paused) { update(dt, elapsed); ambience(dt); watchFps(dt); }
   else { windU.value = elapsed; clouds.children.forEach(c => { c.position.x += c.userData.v * dt; if (c.position.x > 140) c.position.x = -140; }); waterTex.offset.x -= dt * 0.12; if (!started) cam.tYaw += dt * 0.05; }
   lighting(dt); updateCamera(dt); renderer.render(scene, camera); hud(dt);
