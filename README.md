@@ -14,6 +14,8 @@ My cozy 3D browser game. Befriend forest animals, grow your farm, and survive th
 - **Check the morning report** after a raid night to see what you fought off and collect a dawn bonus.
 - **Cook** crops and fish into meals at the cooking pot by the well. Meals heal, refill stamina and sell well.
 - **Take a buddy** along: any barn animal can walk with you, dig up treats and warn you about wolves.
+- **Decorate** your farm with lanterns, benches, flower beds, fences and more. Place them anywhere inside the fence and move them whenever you like.
+- **Watch the seasons change** every three days. Trees turn orange in autumn, it snows in winter, and each season changes how fast your crops grow.
 
 ## Controls
 | Action | Keys |
@@ -23,6 +25,7 @@ My cozy 3D browser game. Befriend forest animals, grow your farm, and survive th
 | Offer food / interact | E |
 | Hotbar | 1–9 |
 | Bag / Skills / Journal / Map | B / K / J / M |
+| Decorate | V |
 | Knife / Slingshot | F / G |
 
 Works with keyboard, mouse or touch. Progress saves in your browser.
