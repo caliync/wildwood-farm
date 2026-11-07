@@ -2485,12 +2485,66 @@ function harvest(i) {
 function updateCrops(dt, time) {
   S.crops.forEach((c, i) => {
     const o = cropObjs[i]; if (!c || !o) return;
-    if (c.g < 1) { c.g = Math.min(1, c.g + dt / CROPS[c.k].t * (S.rain > 0 ? 2 : 1) * (1 + sk('green') * 0.12) * (S.home >= 2 ? 1.15 : 1)); if (c.g >= 1) { o.pop = 0; floatText(FIELD[i][0], 1.8, FIELD[i][1], '✨'); } }
+    if (c.g < 1) { c.g = Math.min(1, c.g + dt / CROPS[c.k].t * (S.rain > 0 ? 2 : 1) * (1 + sk('green') * 0.12) * (S.home >= 2 ? 1.15 : 1) * SEASONS[seasonIdx()].grow(c.k)); if (c.g >= 1) { o.pop = 0; floatText(FIELD[i][0], 1.8, FIELD[i][1], '✨'); } }
     const ready = c.g >= 1;
     const s = 0.25 + 0.75 * Math.min(1, c.g * 1.15);
     o.leaves.scale.setScalar(s); o.fruit.visible = ready;
     if (ready) { o.pop = Math.min(1, o.pop + dt * 3); o.fruit.scale.setScalar(Math.max(0.01, o.pop * (1 + Math.sin(o.pop * Math.PI) * 0.3))); o.g.rotation.z = Math.sin(time * 2.4 + i) * 0.03; }
   });
+}
+
+// ================= SEASONS =================
+// a season lasts 3 days (counted in nights survived) and changes at dawn: spring, summer, autumn, winter
+const SEASONS = [
+  { id: 'spring', name: 'Spring', em: '🌸', note: 'Crops grow 25% faster.', grow: () => 1.25 },
+  { id: 'summer', name: 'Summer', em: '☀️', note: 'Long warm days.', grow: () => 1 },
+  { id: 'autumn', name: 'Autumn', em: '🍂', note: 'Pumpkins grow twice as fast.', grow: k => k === 'pumpkin' ? 2 : 1 },
+  { id: 'winter', name: 'Winter', em: '❄️', note: 'Crops grow at half speed.', grow: () => 0.5 },
+];
+const seasonIdx = () => Math.floor((S.nights || 0) / 3) % 4;
+let seasonOn = -1;
+const SC_TINT = { // [tint colour, strength] per kind of plant, per season
+  spring: { leafy: [0x9fd36a, 0.25], pine: [0x6f9f55, 0.1], bush: [0x9fd36a, 0.25], grass: [0x9fd36a, 0.2], ground: [0x93c35e, 0.14] },
+  summer: {},
+  autumn: { leafy: ['fall', 0.78], pine: [0x4a5a32, 0.15], bush: [0xb0702a, 0.5], grass: [0xb59a52, 0.45], ground: [0xb09c55, 0.35] },
+  winter: { leafy: [0xe8eef0, 0.62], pine: [0xe6edf0, 0.38], bush: [0xe8eef0, 0.55], grass: [0xeef3f5, 0.6], ground: [0xf1f5f7, 0.74] },
+};
+const FALL = [0xd9822b, 0xc0452a, 0xe3b13a, 0xd96a2a].map(h => new T.Color(h));
+const tintC = new T.Color(), baseC = new T.Color();
+function seasonKind(m) { return m === canopyMat ? 'leafy' : m === pineMat ? 'pine' : m === tuftMat ? 'grass' : m.vertexColors ? 'bush' : null; }
+function applySeason(i, announce) {
+  seasonOn = i; const S2 = SEASONS[i], P = SC_TINT[S2.id];
+  staticGroup.children.forEach(im => {
+    if (!im.isInstancedMesh || !im.instanceColor) return; const kind = seasonKind(im.material); if (!kind) return;
+    const a = im.instanceColor.array; if (!im.userData.baseCol) im.userData.baseCol = a.slice(); const b = im.userData.baseCol, t = P[kind];
+    for (let j = 0; j < im.count; j++) {
+      baseC.fromArray(b, j * 3);
+      if (t) { if (t[0] === 'fall') tintC.copy(FALL[(j * 7 + (im.id % 3)) % FALL.length]); else tintC.set(t[0]); baseC.lerp(tintC, t[1]); }
+      baseC.toArray(a, j * 3);
+    }
+    im.instanceColor.needsUpdate = true;
+  });
+  const gc = ground.geometry.attributes.color; if (!ground.userData.baseCol) ground.userData.baseCol = gc.array.slice();
+  const gb = ground.userData.baseCol, gt = P.ground;
+  if (gt) tintC.set(gt[0]);
+  for (let j = 0; j < gc.count; j++) { baseC.fromArray(gb, j * 3); if (gt) baseC.lerp(tintC, gt[1] * (0.7 + 0.3 * Math.sin(j * 12.9898) ** 2)); baseC.toArray(gc.array, j * 3); }
+  gc.needsUpdate = true;
+  snow.visible = S2.id === 'winter';
+  if (announce) { showBanner(S2.name, `${S2.em} A new season`); toast(`${S2.em} ${S2.name} is here. ${S2.note}`); SFX.play('quest'); }
+}
+// light snowfall around the camera in winter
+const SNOW_N = 900, snowPos = new Float32Array(SNOW_N * 3);
+for (let i = 0; i < SNOW_N; i++) { snowPos[i * 3] = R(-35, 35); snowPos[i * 3 + 1] = R(0, 26); snowPos[i * 3 + 2] = R(-35, 35); }
+const snow = new T.Points(new T.BufferGeometry().setAttribute('position', new T.BufferAttribute(snowPos, 3)), new T.PointsMaterial({ color: 0xffffff, size: 0.16, transparent: true, opacity: 0.9, depthWrite: false }));
+snow.frustumCulled = false; snow.visible = false; scene.add(snow);
+function updateSeason(dt, time) {
+  const i = seasonIdx();
+  if (i !== seasonOn && (seasonOn < 0 || phase() !== 'night')) applySeason(i, seasonOn >= 0);
+  if (snow.visible) {
+    snow.position.set(camera.position.x, 0, camera.position.z);
+    for (let j = 0; j < SNOW_N; j++) { let y = snowPos[j * 3 + 1] - dt * (1.4 + (j % 5) * 0.25); if (y < 0) y += 26; snowPos[j * 3 + 1] = y; snowPos[j * 3] += Math.sin(time * 0.7 + j) * dt * 0.4; }
+    snow.geometry.attributes.position.needsUpdate = true;
+  }
 }
 
 // ================= DECOR =================
@@ -3298,7 +3352,7 @@ function nightK() { const t = S.t; if (t < 0.08) return 1 - t / 0.08; if (t < 0.
 const tmpV = new T.Vector3();
 function angLerp(a, b, k) { let d = ((b - a + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI; return a + d * k; }
 function update(dt, time) {
-  updatePlacing(time);
+  updatePlacing(time); updateSeason(dt, time);
   clock += dt; S.t = (S.t + dt / CYCLE) % 1; windU.value = time;
   windAmp.value += ((S.rain > 0 || S.storm ? 2.3 : 1) - windAmp.value) * Math.min(1, dt * 0.6);
   S.fire = nightK() > 0.15 ? 1 : 0;
@@ -3614,7 +3668,7 @@ function hud(dt) {
   $('clockIcon').textContent = { dawn: '🌅', day: '☀️', dusk: '🌇', night: '🌙' }[ph];
   $('clock').textContent = `${{ dawn: 'Dawn', day: 'Day', dusk: 'Dusk', night: 'Night' }[ph]} ${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
   $('clockBar').style.width = (S.t * 100).toFixed(1) + '%';
-  $('weather').textContent = { rain: '🌧️ Raining', storm: '⛈️ Storm', fog: '🌫️ Foggy', clear: '⛅ Clear' }[weatherNow()];
+  { const sn = SEASONS[seasonIdx()], w = { rain: '🌧️ Raining', storm: '⛈️ Storm', fog: '🌫️ Foggy', clear: '⛅ Clear' }[weatherNow()]; const txt = `${sn.em} ${sn.name} · ${w}`; if ($('weather').textContent !== txt) $('weather').textContent = txt; }
   const c = contextAction();
   const ab = $('actBtn'); const lab = c.label.replace(/ .*/, '') === 'Offer' ? c.label : c.label; if (ab.textContent !== lab) ab.textContent = lab;
   const sa = $('stamA'), showSt = started && stam < stamMax() - 0.5;
