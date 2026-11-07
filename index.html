@@ -273,6 +273,23 @@ kbd.k { font: 800 12px/1 var(--font-body); background: var(--ink); color: var(--
 /* ===== Game HUD v17 ===== */
 .hud-top { justify-content: space-between; }
 .panel { background: rgba(255, 247, 230, .95); border-radius: 18px; box-shadow: 0 3px 0 rgba(58, 42, 26, .2), 0 8px 22px rgba(0, 0, 0, .16); pointer-events: auto; }
+.tlcol { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; }
+.tut { pointer-events: auto; width: 270px; max-width: calc(100vw - 32px); padding: 10px 12px 11px; border-radius: 16px; display: flex; flex-direction: column; gap: 3px; }
+.tut-head { display: flex; align-items: center; gap: 8px; font-size: 12px; text-transform: none; }
+.tut-head b { font-size: 13px; }
+.tut-head span { color: var(--ink-soft); font-weight: 700; }
+.tut-head button { margin-left: auto; border: 0; background: none; color: var(--ink-soft); font: 800 18px/1 var(--font-body); cursor: pointer; padding: 0 2px; }
+.tut p { margin: 0; font-weight: 800; font-size: 15px; line-height: 1.3; }
+.tut small { color: var(--ink-soft); font-size: 12.5px; line-height: 1.35; }
+.tut-dots { display: flex; gap: 4px; margin-top: 5px; }
+.tut-dots i { flex: 1; height: 4px; border-radius: 2px; background: rgba(58, 42, 26, .14); }
+.tut-dots i.on { background: #5aa144; }
+.tut.pop { animation: tutpop .5s ease; }
+@keyframes tutpop { 40% { transform: scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .tut.pop { animation: none; } }
+@media (max-width: 640px) { .tut { width: 220px; padding: 8px 10px; } .tut p { font-size: 13.5px; } .tut small { font-size: 11.5px; } }
+/* short landscape phones: one line, so it stays clear of the joystick */
+@media (max-height: 520px) { .tut { flex-direction: row; align-items: center; gap: 8px; width: auto; max-width: 300px; padding: 6px 8px 6px 12px; } .tut-head { order: 2; } .tut-head b, .tut small, .tut-dots { display: none; } .tut p { font-size: 13px; } }
 .pcard { display: flex; align-items: center; gap: 10px; padding: 7px 14px 7px 7px; min-width: 0; }
 .lvbadge { width: 54px; height: 54px; border-radius: 50%; border: 0; cursor: pointer; flex: none; position: relative;
   background: radial-gradient(circle at 35% 30%, #ffd77a, var(--gold) 55%, #c7902a); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, .15), 0 0 0 3px #fff7e6, 0 0 0 5px #b8841c;
@@ -460,6 +477,7 @@ kbd.k { font: 800 12px/1 var(--font-body); background: var(--ink); color: var(--
   <div id="hurt"></div><div id="fade"></div>
 
   <div class="hud-top">
+    <div class="tlcol">
     <div class="pcard panel">
       <button class="lvbadge" id="lvlChip" title="Level and skills (K)"><small>LV</small><b id="lvl">1</b></button>
       <div class="pinfo">
@@ -467,6 +485,12 @@ kbd.k { font: 800 12px/1 var(--font-body); background: var(--ink); color: var(--
         <div class="xpbar" title="Experience"><i id="xpBar"></i></div>
         <div class="prow small"><span id="coins" title="Coins">🪙 0</span><span id="friends" title="Friends">🐾 0/5</span></div>
       </div>
+    </div>
+    <div class="tut panel" id="tut" hidden role="status" aria-live="polite">
+      <div class="tut-head"><b>First steps</b><span id="tutCount"></span><button id="tutSkip" title="Hide first steps" aria-label="Hide first steps">×</button></div>
+      <p id="tutTxt"></p><small id="tutSub"></small>
+      <div class="tut-dots" id="tutDots" aria-hidden="true"></div>
+    </div>
     </div>
     <div class="timepill panel" id="clockChip"><span id="clockIcon">☀️</span><span id="clock">Day 08:00</span><span class="clock-bar"><i id="clockBar"></i></span><span class="sep"></span><span id="weather">⛅ Clear</span></div>
     <div class="mapcol">
@@ -1727,7 +1751,7 @@ const rainS = Array.from({ length: RAIN_N }, () => ({ x: R(-30, 30), y: R(0, 22)
 const wild = {}; const respawnAt = {};
 let session = null, pets = [], gifts = [], started = false, clock = 0, shellOp = 1;
 let hp = 3 + ((S.sk && S.sk.tough) || 0), carrying = null, dropped = null, wolves = [], pebbles = [];
-let raidN = 0, raidAt = 0, raidWave = 0, alphaAt = 0, kingAt = 0, dayStarted = false, nextBoar = 25, knifeCd = 0, slingCd = 0, swingT = 0, slingT = 0, slashT = 0, nextWolf = 0, howled = false, faintT = 0, regenT = 0, invuln = 0;
+let raidN = 0, raidAt = 0, raidWave = 0, alphaAt = 0, alpha2At = 0, kingAt = 0, dayStarted = false, nextBoar = 25, knifeCd = 0, slingCd = 0, swingT = 0, slingT = 0, slashT = 0, nextWolf = 0, howled = false, faintT = 0, regenT = 0, invuln = 0;
 function phase() { const t = S.t; return t < 0.12 ? 'dawn' : t < 0.5 ? 'day' : t < 0.62 ? 'dusk' : 'night'; }
 const PHASE_START = { dawn: 0.0, day: 0.12, dusk: 0.5, night: 0.62 };
 // special weather: rain (from S.rain), storm (rain + S.storm) and fog (S.fog), each with its own enemy
@@ -1765,7 +1789,34 @@ function ensureQuests() {
   S.q = { date: today(), bonus: false, list: pool.map(q => ({ t: q.t, n: q.n, txt: q.txt, r: q.r, p: 0, done: false, claimed: false })) };
   save();
 }
+// First steps: a short guided checklist for new players, done in any order
+const TUT = [
+  { t: 'plant', txt: 'Plant seeds in your field', sub: 'Walk onto a brown plot by the barn and press E.' },
+  { t: 'tame', txt: 'Befriend a bunny', sub: 'Bunnies hop in the Meadow, east of the farm, by day. Hold a carrot, walk up, press E and stay still.' },
+  { t: 'settle', txt: 'Bring your friend home', sub: 'Carry it back to the barn and press E at its pen.' },
+  { t: 'harvest', txt: 'Harvest a crop', sub: 'Carrots are ready in under a minute. Rain makes crops grow twice as fast.' },
+  { t: 'gift', txt: 'Collect a gift', sub: 'Animals in your barn leave gifts. Walk over one to pick it up.' },
+  { t: 'earn', txt: 'Sell something at the Merchant', sub: 'The Merchant is the blue stand in the market, east of the well.' },
+];
+if (!S.tut) S.tut = { done: {}, off: (S.friends || []).length > 0 || (S.nights || 0) > 0 };
+function renderTut(pop) {
+  const el = $('tut'), left = TUT.filter(s => !S.tut.done[s.t]);
+  el.hidden = S.tut.off || !started || !left.length; if (el.hidden) return;
+  const cur = left[0], touch = $('app').classList.contains('touch'); $('tutTxt').textContent = cur.txt; $('tutSub').textContent = touch ? cur.sub.replace(/press E/g, 'tap the action button') : cur.sub;
+  $('tutCount').textContent = `${TUT.length - left.length + 1} of ${TUT.length}`;
+  $('tutDots').innerHTML = TUT.map(s => `<i class="${S.tut.done[s.t] ? 'on' : ''}"></i>`).join('');
+  if (pop) { el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+}
+function tutEv(t) {
+  if (!S.tut || S.tut.off || S.tut.done[t] || !TUT.some(s => s.t === t)) return;
+  S.tut.done[t] = 1; const all = TUT.every(s => S.tut.done[s.t]);
+  S.coins += all ? 20 : 5; renderPouch(); SFX.play(all ? 'quest' : 'coin');
+  toast(all ? 'First steps done! 🪙20. Daily quests are on the board by the well.' : `✔ ${TUT.find(s => s.t === t).txt} · 🪙5`);
+  if (all) S.tut.off = true; renderTut(true); save();
+}
+$('tutSkip').onclick = () => { S.tut.off = true; renderTut(); save(); toast('First steps hidden. "How to play" is in the ⚙️ menu.'); };
 function qev(t, n = 1) {
+  tutEv(t);
   if (!S.q) return; let changed = false;
   S.q.list.forEach(q => { if (q.t !== t || q.done) return; q.p = Math.min(q.n, q.p + n); changed = true; if (q.p >= q.n) { q.done = true; SFX.play('quest'); toast(`📜 Quest complete: ${q.txt}! Claim your reward at the quest board.`); } });
   if (changed) { renderQuestChip(); save(); }
@@ -2190,8 +2241,8 @@ $('closeCook').onclick = () => { $('cookWrap').hidden = true; canvas.focus(); };
 const hadSave = (() => { try { return !!localStorage.getItem('wildwood3d-v1'); } catch (e) { return false; } })();
 $('playBtn').textContent = hadSave ? 'Continue' : 'Play';
 function startGame() { if (window.__refund) { const rf = window.__refund; window.__refund = 0; setTimeout(() => toast(`Decor and enemy drops were removed from the game. You got 🪙${rf} back for yours.`), 2600); }
-  $('app').classList.remove('on-title'); $('titleWrap').hidden = true; $('introWrap').hidden = true; if (!started) { started = true; showBanner('Your Farm', 'Welcome to'); } canvas.focus(); }
-$('playBtn').onclick = () => { SFX.init(); SFX.play('click'); if (hadSave) startGame(); else { $('titleWrap').hidden = true; openHow(null); } };
+  $('app').classList.remove('on-title'); $('titleWrap').hidden = true; $('introWrap').hidden = true; if (!started) { started = true; showBanner('Your Farm', 'Welcome to'); } renderTut(); canvas.focus(); }
+$('playBtn').onclick = () => { SFX.init(); SFX.play('click'); startGame(); };
 let howFrom = null;
 function openHow(from) { howFrom = from; $('introTitle').textContent = from ? 'How to play' : 'Welcome to Wildwood Farm'; $('startBtn').textContent = from ? '← Back' : 'Start exploring'; $('introWrap').hidden = false; $('introWrap').querySelector('.sheet').scrollTop = 0; }
 function closeHow() { const f = howFrom; $('introWrap').hidden = true; howFrom = null; if (f === 'title') $('titleWrap').hidden = false; else if (f === 'menu') $('menuWrap').hidden = false; else if (!started) startGame(); else canvas.focus(); }
@@ -2412,6 +2463,7 @@ function buildCrop(i) {
 S.crops.forEach((_, i) => buildCrop(i));
 function nearestPlot() { let best = null, bd = 2.9; FIELD.forEach(([x, z], i) => { const d = Math.hypot(x - player.x, z - player.z); if (d < bd) { bd = d; best = i; } }); return best; }
 function plant(i, k) {
+  qev('plant');
   S.inv[CROPS[k].seed]--; S.crops[i] = { k, g: 0 }; buildCrop(i);
   floatText(FIELD[i][0], 1.6, FIELD[i][1], '🌱'); renderPouch(); save();
 }
@@ -2660,12 +2712,15 @@ const RAIDST = ['march', 'bash', 'raid'];
 function updateWolves(dt, time) {
   const ph = phase();
   if (ph === 'night' && !howled) {
-    howled = true; SFX.play('howl'); nextWolf = clock + 6; S.nights = (S.nights || 0) + 1; S.gateHp = DEF.gate.hp[S.def.gate]; raidN = 2 + Math.min(3, Math.floor(S.nights / 2)); raidAt = clock + 10; raidWave = 0;
-    if (S.nights % 2 === 0 || Math.random() < 0.4) { alphaAt = clock + 12; showBanner('Full Moon', 'Tonight is a'); toast('🌕 A full moon rises. The Alpha Wolf hunts tonight. Beat it for a rare fang!'); if (Math.random() < 0.3) setTimeout(() => toast('Two howls answer each other… a second pack leader is out there.'), 4000); }
+    howled = true; SFX.play('howl'); nextWolf = clock + 6; S.nights = (S.nights || 0) + 1; S.gateHp = DEF.gate.hp[S.def.gate]; raidN = S.nights === 1 ? 1 : 2 + Math.min(3, Math.floor(S.nights / 2)); raidAt = clock + (S.nights === 1 ? 20 : 10); raidWave = 0;
+    // the full moon (and the Alpha Wolf) comes every third night, starting on night 3
+    if (S.nights >= 3 && S.nights % 3 === 0) { alphaAt = clock + 12; showBanner('Full Moon', 'Tonight is a'); toast('🌕 A full moon rises. The Alpha Wolf hunts tonight. Beat it for a rare fang!'); if (S.nights >= 6 && Math.random() < 0.3) { alpha2At = clock + 40; setTimeout(() => toast('Two howls answer each other… a second pack leader is out there.'), 4000); } }
+    else if (S.nights === 1) toast('🐺 Wolves come at night. Stay inside the fence and fight back with your knife (F) or sling (G). If you faint you wake up safe at home.');
     else toast('A howl echoes through the trees. Wolves are out tonight.');
   }
   if (ph === 'night' && alphaAt && clock > alphaAt) { alphaAt = 0; if (!wolves.some(w => w.alpha && !w.boar)) spawnWolf(false, false, true); }
-  if (ph !== 'night') alphaAt = 0;
+  if (ph === 'night' && alpha2At && clock > alpha2At) { alpha2At = 0; if (wolves.filter(w => w.alpha && !w.boar && w.state !== 'ko' && w.state !== 'leave').length < 2) spawnWolf(false, false, true); }
+  if (ph !== 'night') alphaAt = alpha2At = 0;
   if (ph !== 'night') { howled = false; raidN = 0; if (nightLog.on && started) showDawnReport(); }
   if (ph === 'night' && started && raidN > 0 && clock > raidAt && faintT <= 0) {
     raidN--; raidWave++; raidAt = clock + R(32, 46);
